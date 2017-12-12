@@ -1,0 +1,2 @@
+# HPSocket4Python
+这个是HPSocket的Python绑定

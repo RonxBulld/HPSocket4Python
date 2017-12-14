@@ -81,7 +81,7 @@ class HP_TcpPullServer():
 
         iAddressLen = 50
         pszAddress  = ctypes.create_string_buffer(b' ' * iAddressLen)
-        iAddressLen = ctypes.c_long(iAddressLen)
+        iAddressLen = ctypes.c_int(iAddressLen)
         usPort      = ctypes.c_ushort(0)
         HPSocket.HP_Server_GetListenAddress(Sender, pszAddress, ctypes.byref(iAddressLen), ctypes.byref(usPort))
 
@@ -94,7 +94,7 @@ class HP_TcpPullServer():
 
         iAddressLen  = 50
         pszAddress   = ctypes.create_string_buffer(b' ' * iAddressLen)  # 这里要预留空间，GetRemoteAddress的调用方负责管理内存
-        iAddressLen  = ctypes.c_long(iAddressLen)
+        iAddressLen  = ctypes.c_int(iAddressLen)
         usPort       = ctypes.c_ushort(0)
         HPSocket.HP_Server_GetRemoteAddress(Sender, ConnID, pszAddress, ctypes.byref(iAddressLen), ctypes.byref(usPort))
 

@@ -3,7 +3,6 @@
 import TcpPull
 import ctypes
 
-
 class TPkgHeader(ctypes.Structure):
     _fields_ = [
         ('seq', ctypes.c_uint),
@@ -33,9 +32,18 @@ class TPkgInfo(ctypes.Structure):
 class CBuffer():
     Buffer = None
     buffer = None
-    def __init__(self, size):
-        self.Buffer = ctypes.create_string_buffer(b' ' * size)
-        self.buffer = ctypes.cast(self.Buffer, ctypes.POINTER(ctypes.c_byte))  # 从 char[] 转换到需要的 byte*
+    def __init__(self, init_info):
+        '''利用参数类型判断实现重载'''
+        if isinstance(init_info, int):
+            size = init_info
+            self.Buffer = ctypes.create_string_buffer(b' ' * size, size)
+            self.buffer = ctypes.cast(self.Buffer, ctypes.POINTER(ctypes.c_byte))  # 从 char[] 转换到需要的 byte*
+        elif isinstance(init_info, bytes):
+            data = init_info
+            self.Buffer = ctypes.create_string_buffer(data, len(data))
+            self.buffer = ctypes.cast(self.Buffer, ctypes.POINTER(ctypes.c_byte))
+        else:
+            raise TypeError('不支持的初始化参数类型')
 
     def Contents(self):
         return self.Buffer
@@ -51,6 +59,9 @@ class CBuffer():
 
     def __getitem__(self,index):
         return self.Buffer[index]
+
+    def __len__(self):
+        return self.Size()
 
 
 def FindPkgInfo(Sender, ConnID):

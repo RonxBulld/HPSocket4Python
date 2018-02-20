@@ -3,7 +3,7 @@
 import sys
 sys.path.append('../')
 from pyhpsocket import *
-
+import helper
 
 class HP_TcpPullServer():
     Listener = None
@@ -56,6 +56,27 @@ class HP_TcpPullServer():
 
     @EventDescription
     def OnReceive(self, Sender, ConnID, Length):
+        # 在使用默认的数据结构情况下，数据包的组织形式是 Head-Body 交错
+        pInfo = helper.FindPkgInfo(Sender, ConnID)
+        if pInfo:
+            required = pInfo.length
+            remain = Length
+            while remain >= required:
+                remain -= required
+                Buf = helper.CBuffer(required)
+                result = HP_TcpPullServer_Fetch(Sender, ConnID, Buf.Ptr(), required)  # 这里获取 Body
+                if result == EnFetchResult.FR_OK:
+                    if pInfo.is_header:
+                        pHeader = Buf.ToOtherPtr(helper.TPkgHeader)
+                        self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=pHeader.contents.seq, Length=pHeader.contents.body_len)
+                        required = pHeader.contents.body_len  # 从 head 切换到 body
+                    else:
+                        self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=Buf.Contents().raw)
+                        required = SizeOf(helper.TPkgHeader)  # 从 body 切换到 head
+                    pInfo.is_header = not pInfo.is_header
+                    pInfo.length = required
+                    if not HP_Server_Send(Sender, ConnID, Buf.Ptr()):
+                        return EnHandleResult.HR_ERROR
         return EnHandleResult.HR_OK
 
     @EventDescription
@@ -64,6 +85,17 @@ class HP_TcpPullServer():
 
     @EventDescription
     def OnShutdown(self, Sender):
+        return EnHandleResult.HR_OK
+
+### Pull 模型特有的两个事件 ###
+    @EventDescription
+    def OnReceiveHead(self, Sender, ConnID, Seq:int, Length:int):
+        '''若要使得该事件被触发，必须不重写 OnReceive 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceive 的时候有意识的调用本函数。'''
+        return EnHandleResult.HR_OK
+
+    @EventDescription
+    def OnReceiveBody(self, Sender, ConnID, Body:bytes):
+        '''若要使得该事件被触发，必须不重写 OnReceive 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceive 的时候有意识的调用本函数。'''
         return EnHandleResult.HR_OK
 
 

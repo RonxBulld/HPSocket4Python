@@ -1,4 +1,5 @@
 # coding: utf-8
+'''HP-Socket 的 Python 绑定'''
 
 ####################################
 # Converter: codeblock-conv-gui.py #

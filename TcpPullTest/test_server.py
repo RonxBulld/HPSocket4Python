@@ -1,5 +1,4 @@
 # coding: utf-8
-
 import HPSocket
 import ctypes
 import time
@@ -38,6 +37,8 @@ class HP_TcpPullServer():
     def __init__(self):
         self.Listener = HPSocket.Create_HP_TcpPullServerListener()
         self.Server = HPSocket.Create_HP_TcpPullServer(self.Listener)
+        print('Listen:',self.Listener)
+        print('Server:',self.Server)
         self.OnPrepareListenHandle = HPSocket.HP_FN_Server_OnPrepareListen(self.OnPrepareListen)
         self.OnAcceptHandle = HPSocket.HP_FN_Server_OnAccept(self.OnAccept)
         self.OnSendHandle = HPSocket.HP_FN_Server_OnSend(self.OnSend)
@@ -77,6 +78,7 @@ class HP_TcpPullServer():
 ### 用户可以覆盖下面的方法以实现业务应用 ###
     @EventDescription
     def OnPrepareListen(self, Sender, SocketHandler):
+        print('OnPrepareListen:', Sender)
         print('[--', sys._getframe().f_code.co_name, '--]', end='\t')
 
         iAddressLen = 50

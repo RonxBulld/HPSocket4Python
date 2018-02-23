@@ -5,12 +5,6 @@
 
 from HPSocket import *
 
-def SizeOf(ctypes_obj):
-    return ctypes.sizeof(ctypes_obj)
-
-def MakePointer(ctypes_obj):
-    return ctypes.pointer(ctypes_obj)
-
 LP_c_byte = ctypes.POINTER(ctypes.c_byte)
 def ValToLP_c_byte(Val):
     '''自动识别 Val 的数据类型：

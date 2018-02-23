@@ -1,15 +1,26 @@
 # coding: utf-8
 
-import time
-import TcpPull
-import helper
+import time,sys,os
+sys.path.append(os.getcwd())
+sys.path.append(os.getcwd()+'\\..\\')
 
+import TcpPull
+import utils
+import TcpPull.helper as helper
 
 class Server(TcpPull.HP_TcpPullServer):
+    def Start(self, host, port):
+        if super().Start(host,port):
+            print('Start server success, listen on %s:%d'%(host,port))
+            return True
+        else:
+            print('Start server fail.')
+            return False
+
     @TcpPull.HP_TcpPullServer.EventDescription
     def OnAccept(self, Sender, ConnID, Client):
-        self.pkg = helper.TPkgInfo(True, TcpPull.SizeOf(helper.TPkgHeader))
-        TcpPull.HP_Server_SetConnectionExtra(Sender, ConnID, TcpPull.MakePointer(self.pkg))
+        self.pkg = helper.TPkgInfo(True, utils.SizeOf(helper.TPkgHeader))
+        TcpPull.HP_Server_SetConnectionExtra(Sender, ConnID, utils.MakePointer(self.pkg))
         return TcpPull.EnHandleResult.HR_OK
 
     @TcpPull.HP_TcpPullServer.EventDescription
@@ -18,17 +29,11 @@ class Server(TcpPull.HP_TcpPullServer):
 
     @TcpPull.HP_TcpPullServer.EventDescription
     def OnReceiveBody(self, Sender, ConnID, Body: bytes):
-        BodyStruct = helper.CBuffer(Body)
-        pBody = BodyStruct.ToOtherPtr(helper.TPkgBody)
-        # 下面的转换需要小心，因为如果使用错误的字符集会导致crash
-        name = pBody.contents.name.decode('GBK')  # name = bytes.decode(pBody->name, 'GBK')
-        # 这里由于 python 语言的限制，没有 C 那么灵活所以 desc 部分单独拿出来处理
-        # 下面的转换需要小心，因为如果使用错误的字符集会导致crash
-        desc = BodyStruct[TcpPull.SizeOf(helper.TPkgBody):].decode('GBK')
-        print('[TRACE] body -> name: %s, age: %d, desc: %s' % (name, pBody.contents.age, desc))
+        pkg = helper.GeneratePkg(Body)
+        print('[TRACE] body -> name: %s, age: %d, desc: %s' % (pkg.name,pkg.age,pkg.desc))
 
 
 svr = Server()
-svr.Start('0.0.0.0',5555)
-while True:
-    time.sleep(1)
+if svr.Start('0.0.0.0',5555):
+    while True:
+        time.sleep(1)

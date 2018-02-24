@@ -8,8 +8,9 @@
 ####################################
 
 
-from HPTypeDef import *
-import multiplatforms
+from HPSocket.HPTypeDef import *
+from HPSocket import multiplatforms
+
 # HPSocketDLL = ctypes.windll.LoadLibrary('HPSocket4C_x64.dll')
 HPSocketDLL = multiplatforms.LoadHPSocketLibrary()
 CONNID = ctypes.c_ulong

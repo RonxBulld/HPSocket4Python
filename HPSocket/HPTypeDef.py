@@ -1,5 +1,5 @@
 # coding: utf-8
-
+'''HPTypeDef.h 的转化文件，包含各种预定义类型'''
 ####################################
 # Converter: codeblock-conv-gui.py #
 # Version: 1.2 Developer Edition   #
@@ -19,7 +19,7 @@ nullptr = PVOID(0)
 
 class WSABUF(ctypes.Structure):
     _fields_ = [
-        ('len', ctypes.c_ulong),
+        ('len', ctypes.c_uint),
         ('buf', ctypes.c_char_p)
     ]
 

@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import ctypes
+import struct
 
 class TPkgHeader(ctypes.Structure):
     _fields_ = [
@@ -73,58 +74,20 @@ class CBuffer():
     def __len__(self):
         return self.Size()
 
+TPkgHeaderSize = 8
+def UnpackTPkgHeader(Buffer):
+    return struct.unpack('ii', Buffer)
+
 
 def GeneratePkgBuffer(seq, name, age, desc):
-    desc_len = len(desc) + 1
-    body_len = ctypes.sizeof(TPkgBody)
-    head_len = ctypes.sizeof(TPkgHeader)
-    buffer = ctypes.create_string_buffer(b'\0', head_len + body_len + desc_len)
-    # 你有张良计，我有过墙梯
-    pHeader = ctypes.cast(ctypes.byref(buffer, 0), ctypes.POINTER(TPkgHeader))
-    pHeader.contents.seq = seq
-    pHeader.contents.body_len = body_len + desc_len
-
-    pBody = ctypes.cast(ctypes.byref(buffer, head_len), ctypes.POINTER(TPkgBody))
-    pBody.contents.name = str.encode(name,encoding='GBK')
-    pBody.contents.age = age
-
-    bsDesc = str.encode(desc,encoding='GBK')
-    bArr = bytearray(buffer.raw)
-    bArr[head_len + body_len:head_len + body_len + desc_len] = bsDesc
-    buffer = ctypes.create_string_buffer(bytes(bArr))
-
+    buffer = struct.pack('ii30sh%ds'%len(desc), seq, 30+2+len(desc), name.encode('GBK'), age,desc.encode('GBK'))
     return buffer
 
 
-class PTPkgBody():
-    name = None
-    age = 0
-    desc = None
-    def __init__(self, name=None, age=0, desc=None):
-        self.name=name
-        self.age=age
-        self.desc=desc
-
 def GeneratePkg(buffer):
-    # 使用 Foobar=type('TPkgBody_dl%d'%bodyl,(ctypes.Structure,),{'name':ctypes.c_char * 30, 'age':ctypes.c_short, 'desc':ctypes.c_char * (bodyl-starti)}) 会更优雅，无奈不会取值
-    starti = TPkgBody.sizeof()
-    bodyl = len(buffer)
-    codes = '''
-class TPkgBody_dl{bsize}(ctypes.Structure):
-    _fields_ = [
-        ('name', ctypes.c_char * 30),
-        ('age', ctypes.c_short),
-        ('desc', ctypes.c_char * {descl})
-    ]
-
-    def sizeof():
-        return ctypes.sizeof(TPkgBody_dl{bsize})
-
-npBody = ctypes.cast(buffer,ctypes.POINTER(TPkgBody_dl{bsize}))
-        '''.format(bsize=bodyl, descl=bodyl - starti)
-    exec(codes, globals(), locals())
-    nBody = locals()['npBody'].contents
-    name = nBody.name.decode('GBK')
-    age = nBody.age
-    desc = nBody.desc.decode('GBK')
-    return PTPkgBody(name=name, age=age, desc=desc)
+    desc_len = len(buffer) - 30 - 2
+    fmt = '30sh%ds' % desc_len
+    (name, age, desc) = struct.unpack(fmt, buffer)
+    name = name.decode('GBK')
+    desc = desc.decode('GBK')
+    return (name, age, desc)

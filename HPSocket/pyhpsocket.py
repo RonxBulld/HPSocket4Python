@@ -2,8 +2,8 @@
 '''高级封装
     将简化和屏蔽大多数的 ctypes 操作
 '''
-
-from HPSocket import *
+from HPSocket.HPSocketAPI import *
+import ctypes
 
 LP_c_byte = ctypes.POINTER(ctypes.c_byte)
 def ValToLP_c_byte(Val):
@@ -49,7 +49,7 @@ del HP_Server_SendPart
 def HP_Server_SendPart(Server, ConnID, Buffer, Offset):
     buffer = ctypes.cast(ctypes.create_string_buffer(Buffer, len(Buffer) + 1), ctypes.POINTER(ctypes.c_byte))
     offset = ctypes.c_int(Offset)
-    _HP_Server_SendPart(Server, ConnID, buffer, len(Buffer), offset)
+    return _HP_Server_SendPart(Server, ConnID, buffer, len(Buffer), offset)
 
 
 _HP_Client_SendPackets = HP_Client_SendPackets
@@ -64,7 +64,7 @@ def HP_Client_SendPackets(Client, Bufs):
         buf.buf = pbuf
         bufs.append(Buf)
     pWSABUF = ctypes.cast(bufs, LPWSABUF)
-    _HP_Client_SendPackets(Client, pWSABUF, len(bufs))
+    return _HP_Client_SendPackets(Client, pWSABUF, len(bufs))
 
 
 _HP_Server_SendPackets = HP_Server_SendPackets
@@ -77,8 +77,13 @@ def HP_Server_SendPackets(Server, ConnID, Bufs):
         buf.len = ctypes.c_ulong(len(Buf))
         buf.buf = ctypes.cast(ctypes.create_string_buffer(Buf+'\0',len(Buf) + 1), ctypes.POINTER(ctypes.c_byte))
         bufs.append(Buf)
-    _HP_Server_SendPackets(Server, ConnID, ctypes.pointer(bufs), len(bufs))
+    return _HP_Server_SendPackets(Server, ConnID, ctypes.pointer(bufs), len(bufs))
 
+
+_HP_Server_SetConnectionExtra = HP_Server_SetConnectionExtra
+del HP_Server_SetConnectionExtra
+def HP_Server_SetConnectionExtra(Sender, ConnID, Data):
+    return _HP_Server_SetConnectionExtra(Sender, ConnID, ctypes.pointer(Data))
 
 _HP_Server_GetConnectionExtra = HP_Server_GetConnectionExtra
 del HP_Server_GetConnectionExtra
@@ -100,7 +105,7 @@ def HP_Server_GetRemoteAddress(Sender, ConnID):
     return (bytes.decode(pszAddress.value), usPort.value)
 
 
-_HP_Server_GetListenAddress = HP_Server_GetListenAddress
-del HP_Server_GetListenAddress
-def HP_Server_GetListenAddress():
-    pass
+# _HP_Server_GetListenAddress = HP_Server_GetListenAddress
+# del HP_Server_GetListenAddress
+# def HP_Server_GetListenAddress():
+#     pass

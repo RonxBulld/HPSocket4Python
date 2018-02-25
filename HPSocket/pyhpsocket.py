@@ -82,8 +82,13 @@ def HP_Server_SendPackets(Server, ConnID, Bufs):
 
 _HP_Server_SetConnectionExtra = HP_Server_SetConnectionExtra
 del HP_Server_SetConnectionExtra
+CEDict={}
 def HP_Server_SetConnectionExtra(Sender, ConnID, Data):
-    return _HP_Server_SetConnectionExtra(Sender, ConnID, ctypes.pointer(Data))
+    global CEDict
+    b=bytes(Data)
+    pd=ctypes.pointer(ctypes.create_string_buffer(b,len(b)))
+    CEDict[(Sender,ConnID)] = pd
+    return _HP_Server_SetConnectionExtra(Sender, ConnID, pd)
 
 _HP_Server_GetConnectionExtra = HP_Server_GetConnectionExtra
 del HP_Server_GetConnectionExtra

@@ -23,11 +23,11 @@ class Client(TcpPull.HP_TcpPullClient):
         return HPSocket.EnHandleResult.HR_OK
 
     @TcpPull.HP_TcpPullClient.EventDescription
-    def OnReceiveHead(self, Sender, ConnID, Seq: int, Length: int):
+    def OnReceiveHead(self, Sender, ConnID, Seq: int, Length: int, raw:bytes):
         print('[TRACR] [Client] head -> seq: %d, body_len: %d' % (Seq, Length))
 
     @TcpPull.HP_TcpPullClient.EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
         (name, age, desc) = helper.GeneratePkg(Body)
         print('[TRACE] [Client] body -> name: %s, age: %d, desc: %s' % (name,age,desc))
         self.SendTest()
@@ -38,8 +38,9 @@ class Client(TcpPull.HP_TcpPullClient):
         self.Send(self.Client, buffer)
 
 
-cnt = Client()
-cnt.Start('127.0.0.1',5555)
-cnt.SendTest()
-while True:
-    time.sleep(1)
+if __name__ == '__main__':
+    cnt = Client()
+    cnt.Start('127.0.0.1',5555)
+    cnt.SendTest()
+    while True:
+        time.sleep(1)

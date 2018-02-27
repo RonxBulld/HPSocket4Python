@@ -4,6 +4,34 @@
 '''
 from HPSocket.HPSocketAPI import *
 import ctypes
+import threading
+
+
+class ReadWriteLock(object):
+
+    def __init__(self):
+        self.__monitor = threading.Lock()
+        self.__exclude = threading.Lock()
+        self.readers = 0
+
+    def acquire_read(self):
+        with self.__monitor:
+            self.readers += 1
+            if self.readers == 1:
+                self.__exclude.acquire()
+
+    def release_read(self):
+        with self.__monitor:
+            self.readers -= 1
+            if self.readers == 0:
+                self.__exclude.release()
+
+    def acquire_write(self):
+        self.__exclude.acquire()
+
+    def release_write(self):
+        self.__exclude.release()
+
 
 LP_c_byte = ctypes.POINTER(ctypes.c_byte)
 def ValToLP_c_byte(Val):
@@ -35,6 +63,13 @@ del HP_Server_Send
 def HP_Server_Send(Server, ConnID, Buffer):
     (Buffer, BufferLength) = ValToLP_c_byte(Buffer)
     return _HP_Server_Send(Server, ConnID, Buffer, BufferLength)
+
+
+_HP_Agent_Send = HP_Agent_Send
+del HP_Agent_Send
+def HP_Agent_Send(Agent, ConnID, Buffer):
+    (Buffer, BufferLength) = ValToLP_c_byte(Buffer)
+    return _HP_Agent_Send(Agent, ConnID, Buffer, BufferLength)
 
 
 _HP_Client_Send = HP_Client_Send
@@ -80,23 +115,36 @@ def HP_Server_SendPackets(Server, ConnID, Bufs):
     return _HP_Server_SendPackets(Server, ConnID, ctypes.pointer(bufs), len(bufs))
 
 
+rwlock = ReadWriteLock()
 _HP_Server_SetConnectionExtra = HP_Server_SetConnectionExtra
 del HP_Server_SetConnectionExtra
 CEDict={}
 def HP_Server_SetConnectionExtra(Sender, ConnID, Data):
-    global CEDict
-    b=bytes(Data)
-    pd=ctypes.pointer(ctypes.create_string_buffer(b,len(b)))
-    CEDict[(Sender,ConnID)] = pd
-    return _HP_Server_SetConnectionExtra(Sender, ConnID, pd)
+    global CEDict, rwlock
+    # b=bytes(Data)
+    # pd=ctypes.pointer(ctypes.create_string_buffer(b,len(b)))
+    # CEDict[(Sender,ConnID)] = pd
+    # return _HP_Server_SetConnectionExtra(Sender, ConnID, pd)
+    rwlock.acquire_write()
+    CEDict[(Sender, ConnID)] = Data
+    rwlock.release_write()
+    return True
 
 _HP_Server_GetConnectionExtra = HP_Server_GetConnectionExtra
 del HP_Server_GetConnectionExtra
 def HP_Server_GetConnectionExtra(Server, ConnID, type):
-    pInfo = nullptr
-    suc = _HP_Server_GetConnectionExtra(Server, ConnID, ctypes.byref(pInfo))  # 这里要求传入 void**
-    Info = ctypes.cast(pInfo, ctypes.POINTER(type))  # 将 void** 转换为 type**
-    return Info.contents if suc == True else None
+    # pInfo = nullptr
+    # suc = _HP_Server_GetConnectionExtra(Server, ConnID, ctypes.byref(pInfo))  # 这里要求传入 void**
+    # Info = ctypes.cast(pInfo, ctypes.POINTER(type))  # 将 void** 转换为 type**
+    # return Info.contents if suc == True else None
+    global CEDict, rwlock
+    ktp = (Server, ConnID)
+    vv = None
+    rwlock.acquire_read()
+    if ktp in CEDict:
+        vv = CEDict[ktp]
+        rwlock.release_read()
+    return vv
 
 
 _HP_Server_GetRemoteAddress = HP_Server_GetRemoteAddress
@@ -109,6 +157,15 @@ def HP_Server_GetRemoteAddress(Sender, ConnID):
     _HP_Server_GetRemoteAddress(Sender, ConnID, pszAddress, ctypes.byref(iAddressLen), ctypes.byref(usPort))
     return (bytes.decode(pszAddress.value), usPort.value)
 
+
+_HP_Agent_GetLocalAddress = HP_Agent_GetLocalAddress
+del HP_Agent_GetLocalAddress
+def HP_Agent_GetLocalAddress(Sender, ConnID):
+    szAddress = ctypes.create_string_buffer(b' ' * 50, 50)
+    iAddressLen = ctypes.c_int(50)
+    usPort = ctypes.c_ushort(50)
+    _HP_Agent_GetLocalAddress(Sender, ConnID, szAddress, ctypes.byref(iAddressLen), ctypes.byref(usPort))
+    return (ctypes.string_at(szAddress, iAddressLen.value), usPort.value)
 
 # _HP_Server_GetListenAddress = HP_Server_GetListenAddress
 # del HP_Server_GetListenAddress

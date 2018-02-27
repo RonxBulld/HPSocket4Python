@@ -33,24 +33,25 @@ class Server(TcpPull.HP_TcpPullServer):
 
     @TcpPull.HP_TcpPullServer.EventDescription
     def OnAccept(self, Sender, ConnID, Client):
-        self.pkg = helper.TPkgInfo(True, helper.TPkgHeaderSize)     # 这块内存需要保护起来
-        HPSocket.HP_Server_SetConnectionExtra(Sender, ConnID, self.pkg)
+        pkg = helper.TPkgInfo(True, helper.TPkgHeaderSize)     # 这块内存需要保护起来
+        HPSocket.HP_Server_SetConnectionExtra(Sender, ConnID, pkg)
         print('New custom in: %d'%ConnID)
         return HPSocket.EnHandleResult.HR_OK
 
     @TcpPull.HP_TcpPullServer.EventDescription
-    def OnReceiveHead(self, Sender, ConnID, Seq:int, Length:int):
+    def OnReceiveHead(self, Sender, ConnID, Seq:int, Length:int, raw:bytes):
         print('[TRACR] [Server] head -> seq: %d, body_len: %d' % (Seq, Length))
+        self.Send(Sender, ConnID, raw)
 
     @TcpPull.HP_TcpPullServer.EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
         (name, age, desc) = helper.GeneratePkg(Body)
         print('[TRACE] body -> name: %s, age: %d, desc: %s' % (name,age,desc))
         Buf = helper.GeneratePkgBuffer(seq=-1,name=name,age=age,desc=desc)
-        self.Send(Sender, ConnID, Buf)
+        self.Send(Sender, ConnID, raw)
 
-
-svr = Server()
-if svr.Start('0.0.0.0',5555):
-    while True:
-        time.sleep(1)
+if __name__ == '__main__':
+    svr = Server()
+    if svr.Start('0.0.0.0',5555):
+        while True:
+            time.sleep(1)

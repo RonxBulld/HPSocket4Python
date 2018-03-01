@@ -4,16 +4,16 @@ import time,sys,os
 sys.path.append(os.getcwd())
 sys.path.append(os.getcwd()+'\\..\\')
 
-from HPSocket import TcpPack
+from HPSocket import TcpPush
 from HPSocket import helper
 import HPSocket.pyhpsocket as HPSocket
 
-class Client(TcpPack.HP_TcpPackClient):
+class Client(TcpPush.HP_TcpPushClient):
     counter = 0
-    EventDescription = TcpPack.HP_TcpPackServer.EventDescription
+    EventDescription = TcpPush.HP_TcpPushServer.EventDescription
 
     @EventDescription
-    def OnSend(self, Sender, ConnID, Data):
+    def OnSend(self, Sender, ConnID, Data, Length):
         print('[%d, OnSend] < %s' % (ConnID, repr(Data)))
 
     @EventDescription
@@ -21,8 +21,8 @@ class Client(TcpPack.HP_TcpPackClient):
         print('[%d, OnConnect] Success.' % ConnID)
 
     @EventDescription
-    def OnReceive(self, Sender, ConnID, Data):
-        print('[%d, OnReceiveWarp] < %s' % (ConnID, repr(Data)))
+    def OnReceive(self, Sender, ConnID, Data, Length):
+        print('[%d, OnReceive] < %s' % (ConnID, repr(Data)))
         self.SendTest()
 
     def SendTest(self):
@@ -32,7 +32,7 @@ class Client(TcpPack.HP_TcpPackClient):
 
 if __name__ == '__main__':
     cnt = Client()
-    cnt.Start(host='127.0.0.1', port=5555, head_flag=0x169)
+    cnt.Start(host='127.0.0.1', port=5555)
     cnt.SendTest()
     while True:
         time.sleep(1)

@@ -2228,7 +2228,7 @@ if hasattr(HPSocketDLL, "HP_UdpCast_GetMaxDatagramSize"):
     HP_UdpCast_GetMaxDatagramSize.restype = ctypes.c_uint
     HP_UdpCast_GetMaxDatagramSize.argtypes = [HP_UdpCast]
 
-#  获取当前数据报的远程地址信息（通常在 OnReceive 事件中调用）
+#  获取当前数据报的远程地址信息（通常在 OnReceiveWarp 事件中调用）
 # HPSOCKET_API BOOL __stdcall HP_UdpCast_GetRemoteAddress(HP_UdpCast pCast, TCHAR lpszAddress[], int* piAddressLen, USHORT* pusPort);
 if hasattr(HPSocketDLL, "HP_UdpCast_GetRemoteAddress"):
     HP_UdpCast_GetRemoteAddress = HPSocketDLL.HP_UdpCast_GetRemoteAddress

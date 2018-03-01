@@ -82,7 +82,7 @@ def HP_Client_Send(Client, Buffer):
 _HP_Server_SendPart = HP_Server_SendPart
 del HP_Server_SendPart
 def HP_Server_SendPart(Server, ConnID, Buffer, Offset):
-    buffer = ctypes.cast(ctypes.create_string_buffer(Buffer, len(Buffer) + 1), ctypes.POINTER(ctypes.c_byte))
+    buffer = ctypes.cast(ctypes.create_string_buffer(Buffer, len(Buffer)), ctypes.POINTER(ctypes.c_byte))
     offset = ctypes.c_int(Offset)
     return _HP_Server_SendPart(Server, ConnID, buffer, len(Buffer), offset)
 
@@ -94,10 +94,10 @@ def HP_Client_SendPackets(Client, Bufs):
     Bufs = list(Bufs)
     for Buf in Bufs:
         buf = WSABUF()
-        buf.len = ctypes.c_ulong(len(Buf))
-        pbuf = ctypes.cast(ctypes.create_string_buffer(str.encode(Buf+'\0',encoding='GBK')), ctypes.c_char_p)
-        buf.buf = pbuf
-        bufs.append(Buf)
+        (Buf,Length) = ValToLP_c_byte(Buf)
+        buf.len = ctypes.c_ulong(Length)
+        buf.buf = Buf
+        bufs.append(buf)
     pWSABUF = ctypes.cast(bufs, LPWSABUF)
     return _HP_Client_SendPackets(Client, pWSABUF, len(bufs))
 
@@ -105,13 +105,14 @@ def HP_Client_SendPackets(Client, Bufs):
 _HP_Server_SendPackets = HP_Server_SendPackets
 del HP_Server_SendPackets
 def HP_Server_SendPackets(Server, ConnID, Bufs):
-    bufs = []
+    bufs = WSABUF * len(Bufs)
     Bufs = list(Bufs)
     for Buf in Bufs:
         buf = WSABUF()
-        buf.len = ctypes.c_ulong(len(Buf))
-        buf.buf = ctypes.cast(ctypes.create_string_buffer(Buf+'\0',len(Buf) + 1), ctypes.POINTER(ctypes.c_byte))
-        bufs.append(Buf)
+        (Buf, Length) = ValToLP_c_byte(Buf)
+        buf.len = ctypes.c_ulong(Length)
+        buf.buf = Buf
+        bufs.append(buf)
     return _HP_Server_SendPackets(Server, ConnID, ctypes.pointer(bufs), len(bufs))
 
 
@@ -151,7 +152,7 @@ _HP_Server_GetRemoteAddress = HP_Server_GetRemoteAddress
 del HP_Server_GetRemoteAddress
 def HP_Server_GetRemoteAddress(Sender, ConnID):
     iAddressLen = 50
-    pszAddress = ctypes.create_string_buffer(b' ' * iAddressLen)  # 这里要预留空间，GetRemoteAddress的调用方负责管理内存
+    pszAddress = ctypes.create_string_buffer(b' ' * iAddressLen, iAddressLen)  # 这里要预留空间，GetRemoteAddress的调用方负责管理内存
     iAddressLen = ctypes.c_int(iAddressLen)
     usPort = ctypes.c_ushort(0)
     _HP_Server_GetRemoteAddress(Sender, ConnID, pszAddress, ctypes.byref(iAddressLen), ctypes.byref(usPort))

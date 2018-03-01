@@ -20,7 +20,7 @@ nullptr = PVOID(0)
 class WSABUF(ctypes.Structure):
     _fields_ = [
         ('len', ctypes.c_uint),
-        ('buf', ctypes.c_char_p)
+        ('buf', ctypes.POINTER(ctypes.c_byte))
     ]
 
 

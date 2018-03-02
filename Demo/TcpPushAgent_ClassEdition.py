@@ -2,7 +2,7 @@
 
 import time,sys,os
 sys.path.append(os.getcwd())
-sys.path.append(os.getcwd()+'\\..\\')
+sys.path.append(os.getcwd()+'/../')
 
 from HPSocket import TcpPush
 from HPSocket import helper

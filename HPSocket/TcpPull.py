@@ -39,12 +39,12 @@ class HP_TcpPull:
     ### Pull 模型特有的两个事件 ###
     @EventDescription
     def OnReceiveHead(self, Sender, ConnID, Seq: int, Length: int, raw:bytes):
-        """若要使得该事件被触发，必须不重写 OnReceiveWarp 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceiveWarp 的时候有意识的调用本函数。"""
+        """若要使得该事件被触发，必须不重写 OnReceive 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceive 的时候有意识的调用本函数。"""
         return HPSocket.EnHandleResult.HR_OK
 
     @EventDescription
     def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
-        """若要使得该事件被触发，必须不重写 OnReceiveWarp 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceiveWarp 的时候有意识的调用本函数。"""
+        """若要使得该事件被触发，必须不重写 OnReceive 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceive 的时候有意识的调用本函数。"""
         return HPSocket.EnHandleResult.HR_OK
 
 

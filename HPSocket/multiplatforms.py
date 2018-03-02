@@ -14,15 +14,14 @@ def script_path():
 
 
 dist_dict = {
-    ('Windows', '64bit'):(script_path()+'/HPSocket4C_x64.dll',   'windll'),
-    ('Windows', '32bit'):(script_path()+'/HPSocket4C_x86.dll',   'windll'),
-    ('Linux', '64bit'):  (script_path()+'/libhpsocket4c_x64.so', 'cdll'),
-    ('Linux', '32bit'):  (script_path()+'/libhpsocket4c_x86.so', 'cdll'),
+    ('Windows', 'AMD64', '64bit'): (script_path()+'/HPSocket4C_amd64_x64.dll',     'windll'),
+    ('Linux', 'AMD64', '64bit'):   (script_path()+'/libhpsocket4c_amd64_x64.so',   'cdll'),
+    ('Linux', 'aarch64', '64bit'): (script_path()+'/libhpsocket4c_aarch64_x64.so', 'cdll')
 }
 
-ostype = platform.system()
 
 # 模块识别 Windows 系统和 Linux 系统
+ostype = platform.system()
 if ostype == 'Windows':
     pass
 elif ostype == 'Linux':
@@ -39,7 +38,18 @@ elif bits == '64bit':
 else:
     raise Exception('Unknow data bits. - ' + bits)
 
-dist = (ostype, bits)
+# 模块识别 x86/amd64/aarch64
+machine = platform.machine()
+if machine == 'x86':
+    pass
+elif machine == 'AMD64':
+    pass
+elif machine == 'aarch64':
+    pass
+else:
+    raise Exception('Unsupport machine paltform. - ' + machine)
+
+dist = (ostype, machine, bits)
 config = dist_dict[dist]
 
 def LoadHPSocketLibrary():

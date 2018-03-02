@@ -19,7 +19,7 @@ class TPkgBody(ctypes.Structure):
     ]
     def sizeof():
         return ctypes.sizeof(TPkgBody)
-    # 这里定义的结构和 C 语言的 DEMO 不一样，原因请看 OnReceiveWarp
+    # 这里定义的结构和 C 语言的 DEMO 不一样，原因请看 OnReceive
 
 
 class TPkgInfo(ctypes.Structure):

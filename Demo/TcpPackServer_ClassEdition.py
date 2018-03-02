@@ -2,7 +2,7 @@
 
 import time,sys,os
 sys.path.append(os.getcwd())
-sys.path.append(os.getcwd()+'\\..\\')
+sys.path.append(os.getcwd()+'/../')
 
 from HPSocket import TcpPack
 from HPSocket import helper
@@ -22,7 +22,7 @@ class Server(TcpPack.HP_TcpPackServer):
 
     @EventDescription
     def OnReceive(self, Sender, ConnID, Data):
-        print('[%d, OnReceiveWarp] < %s' % (ConnID, repr(Data)))
+        print('[%d, OnReceive] < %s' % (ConnID, repr(Data)))
         self.Send(Sender=Sender, ConnID=ConnID, Data=Data)
         return HPSocket.EnHandleResult.HR_OK
 

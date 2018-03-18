@@ -15,6 +15,7 @@ class Server(TcpPush.HP_TcpPushServer):
     def OnAccept(self, Sender, ConnID, Client):
         (ip,port) = HPSocket.HP_Server_GetRemoteAddress(Sender=Sender, ConnID=ConnID)
         print('[%d, OnAccept] < %s' % (ConnID, (ip, port)))
+        print('Current connected: %s' % repr(HPSocket.HP_Server_GetAllConnectionIDs(Sender)))
 
     @EventDescription
     def OnSend(self, Sender, ConnID, Data, Length):
@@ -34,6 +35,9 @@ class Server(TcpPush.HP_TcpPushServer):
 
 if __name__ == '__main__':
     svr = Server()
-    svr.Start(host='0.0.0.0', port=5555)
-    while True:
-        time.sleep(1)
+    if svr.Start(host='0.0.0.0', port=5555):
+        print('server started.')
+        while True:
+            time.sleep(1)
+    else:
+        print('server fail.')

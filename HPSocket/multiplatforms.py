@@ -14,9 +14,10 @@ def script_path():
 
 
 dist_dict = {
-    ('Windows', 'AMD64', '64bit'): (script_path()+'/HPSocket4C_amd64_x64.dll',     'windll'),
-    ('Linux', 'AMD64', '64bit'):   (script_path()+'/libhpsocket4c_amd64_x64.so',   'cdll'),
-    ('Linux', 'aarch64', '64bit'): (script_path()+'/libhpsocket4c_aarch64_x64.so', 'cdll')
+    ('Windows', 'AMD64', '64bit'): (script_path()+'/HPSocket4C_amd64_64.dll',     'windll'),
+    ('Linux', 'AMD64', '64bit'):   (script_path()+'/libhpsocket4c_amd64_64.so',   'cdll'),
+    ('Linux', 'aarch64', '64bit'): (script_path()+'/libhpsocket4c_aarch64_64.so', 'cdll'),
+    ('Linux', 'armv7l', '32bit'):  (script_path()+'/libhpsocket4c_armv7l_32.so',  'cdll')
 }
 
 
@@ -46,11 +47,16 @@ elif machine == 'AMD64':
     pass
 elif machine == 'aarch64':
     pass
+elif machine == 'armv7l':
+    pass
 else:
     raise Exception('Unsupport machine paltform. - ' + machine)
 
 dist = (ostype, machine, bits)
-config = dist_dict[dist]
+if dist in dist_dict:
+    config = dist_dict[dist]
+else:
+    raise Exception('Unsupport triple library : libhpsocket4c_%s_%s.%s' % (machine, bits[:2], 'dll' if ostype=='Linux' else 'so'))
 
 def LoadHPSocketLibrary():
     '''模块自动识别平台类型，然后加载相应的库，返回库把柄'''

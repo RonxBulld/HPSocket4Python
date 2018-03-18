@@ -47,7 +47,7 @@ if __name__ == '__main__':
     agt.Start('0.0.0.0', head_flag=0x169)
     for i in range(10):
         ConnID = agt.Connect('127.0.0.1', 5555)
-        if ConnID != None:
+        if ConnID is not None:
             agt.SendTest(ConnID)
     while True:
         time.sleep(1)

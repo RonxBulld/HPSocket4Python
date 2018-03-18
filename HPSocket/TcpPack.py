@@ -9,7 +9,6 @@ import HPSocket.pyhpsocket as HPSocket
 class HP_TcpPack:
     Listener = None
     target = ('', 0)
-    __target__ = None
     EnHandleResult = HPSocket.EnHandleResult
 
     def EventDescription(fn):
@@ -79,11 +78,10 @@ class HP_TcpPackServer(HP_TcpPack):
         return HPSocket.HP_Server_Send(Server=Sender, ConnID=ConnID, Buffer=Data)
 
     def Start(self, host, port, head_flag, size = 0xFFF):
-        HPSocket.HP_TcpPackServer_SetMaxPackSize(self.Server, ctypes.c_uint(size))
-        HPSocket.HP_TcpPackServer_SetPackHeaderFlag(self.Server, ctypes.c_ushort(head_flag))
-        self.target = (host, port)
-        self.__target__ = (ctypes.create_string_buffer(str.encode(host)), ctypes.c_ushort(port))
-        return HPSocket.HP_Server_Start(self.Server, self.__target__[0], self.__target__[1])
+        HPSocket.HP_TcpPackServer_SetMaxPackSize(self.Server, size)
+        HPSocket.HP_TcpPackServer_SetPackHeaderFlag(self.Server, head_flag)
+        self.target = (bytes(host,'GBK'), port)
+        return HPSocket.HP_Server_Start(self.Server, self.target[0], self.target[1])
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###
     @HP_TcpPack.EventDescription
@@ -129,12 +127,10 @@ class HP_TcpPackClient(HP_TcpPack):
         return HPSocket.HP_Client_Send(Client=Sender, Buffer=Data)
 
     def Start(self, host, port, head_flag, size = 0xFFF):
-        HPSocket.HP_TcpPackClient_SetMaxPackSize(self.Client, ctypes.c_uint(size))
-        HPSocket.HP_TcpPackClient_SetPackHeaderFlag(self.Client, ctypes.c_ushort(head_flag))
-        self.target = (host, port)
-        self.__target__ = (ctypes.create_string_buffer(str.encode(host, encoding='GBK')), ctypes.c_ushort(port))
-        AsyncConn = ctypes.c_bool(False)
-        return HPSocket.HP_Client_Start(self.Client, self.__target__[0], self.__target__[1], AsyncConn)
+        HPSocket.HP_TcpPackClient_SetMaxPackSize(self.Client, size)
+        HPSocket.HP_TcpPackClient_SetPackHeaderFlag(self.Client, head_flag)
+        self.target = (bytes(host, 'GBK'), port)
+        return HPSocket.HP_Client_Start(self.Client, self.target[0], self.target[1], False)
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###
     @HP_TcpPack.EventDescription
@@ -179,26 +175,20 @@ class HP_TcpPackAgent(HP_TcpPack):
         return HPSocket.HP_Agent_Send(Sender, ConnID, Data)
 
     def Start(self, BindAddress, head_flag, size = 0xFFF):
-        HPSocket.HP_TcpPackAgent_SetMaxPackSize(self.Agent, ctypes.c_uint(size))
-        HPSocket.HP_TcpPackAgent_SetPackHeaderFlag(self.Agent, ctypes.c_ushort(head_flag))
-        self.BindAddress = ctypes.create_string_buffer(bytes(BindAddress, 'GBK'), len(BindAddress))
+        HPSocket.HP_TcpPackAgent_SetMaxPackSize(self.Agent, size)
+        HPSocket.HP_TcpPackAgent_SetPackHeaderFlag(self.Agent, head_flag)
+        HPSocket.HP_TcpAgent_SetReuseAddress(self.Agent, True)
         self.ConnIDPool.clear()
         self.LatestConnID = 0
-        HPSocket.HP_TcpAgent_SetReuseAddress(self.Agent, ctypes.c_bool(True))
-        return HPSocket.HP_Agent_Start(self.Agent, self.BindAddress, ctypes.c_bool(False))
+        return HPSocket.HP_Agent_Start(self.Agent, BindAddress, False)
 
     def Connect(self, host, port):
-        __target__ = (ctypes.create_string_buffer(str.encode(host)), ctypes.c_ushort(port))
-        cLConnID = ctypes.c_ulong(self.LatestConnID)
-        if HPSocket.HP_Agent_Connect(self.Agent, __target__[0], __target__[1], ctypes.byref(cLConnID)):
-            self.LatestConnID = cLConnID.value
-            self.ConnIDPool[self.LatestConnID] = __target__
-            return self.LatestConnID
-        else:
-            return None
+        self.LatestConnID = HPSocket.HP_Agent_Connect(self.Agent, host, port)
+        self.ConnIDPool[self.LatestConnID] = (host, port)
+        return self.LatestConnID
 
     def DisConnect(self, ConnID):
-        HPSocket.HP_Agent_Disconnect(self.Agent, ctypes.c_int(ConnID), ctypes.c_bool(True))
+        HPSocket.HP_Agent_Disconnect(self.Agent, ConnID, True)
         del self.ConnIDPool[ConnID]
 
     def Stop(self):

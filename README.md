@@ -49,7 +49,10 @@ if __name__ == '__main__':
 ```
 
 ## 2.HPSocket4Python 做了什么：
-    为了能让 Python 开发者更好（lan）的使用 HP-Socket 这一高性能高可用的 Socket 框架， HPSocket4Python 对其进行无侵入绑定。 HPSocket4Python 只是一个中间件，将 Python 的函数调用通过转换进而使用以C++为主要语言的 HP-Socket。由于语言的定义差异，Python 很难原汁原味的调用 C++ API，比如 Python 不支持基础类型的参数传址、数据结构（类）隐含了其它一些成员等，都必须借助 ctypes 模块进行转换。 HPSocket4Python 简化了这一系列步骤，力图让开发人员在 3 分钟之内完成基础架构并关注业务逻辑的实现。
+    为了能让 Python 开发者更好（lan）的使用 HP-Socket 这一高性能高可用的 Socket 框架， HPSocket4Python 对其进行无侵入绑定。
+    HPSocket4Python 只是一个中间件，将 Python 的函数调用通过转换进而使用以C++为主要语言的 HP-Socket。
+    由于语言的定义差异，Python 很难原汁原味的调用 C++ API，比如 Python 不支持基础类型的参数传址、数据结构（类）隐含了其它一些成员等。
+    必须借助 ctypes 模块进行转换。HPSocket4Python 简化了这一系列步骤，力图让开发人员在 3 分钟之内完成基础架构并关注业务逻辑的实现。
 
 ## 3.HPSocket4Python 如何实现的：
     HPSocket/HPSocketAPI.py --- 通过自动生成的文件，简单的封装API以及一些类型定义，对应 HPSocket4C.h 文件
@@ -60,7 +63,8 @@ if __name__ == '__main__':
 
 ## 4.如何使用 HPSocket4Python：
     可以参考 Demo 目录下的示例，只需要继承你想使用的类，然后实现相应方法成员即可。
-    注意，需要在函数定义前添加 EventDescription 函数描述，否则应手动设置 HPSocket.EnHandleResult.HR_XXX 返回值，不然可能会出现未定义的行为。
+    注意，需要在函数定义前添加 EventDescription 函数描述，否则应手动设置 HPSocket.EnHandleResult.HR_XXX 返回值，
+    不然可能会出现未定义的行为。
     这一版本的说明文档中暂未添加每条 API 的详细说明，计划在下一个版本推出。
 
 ## 5.已知的不足
@@ -69,4 +73,5 @@ if __name__ == '__main__':
     · 高级封装未能支持 HTTP，UDP 的高级封装未编写 DEMO；
 
 ## 6.移植/跨平台
-    只需要宿主系统安装了 Python3 并且有完整的标准库即可。包内提供了部分平台的动态库文件，若这之中不存在目标系统，则开发者需要自行编译 HP-Socket 库。
+    只需要宿主系统安装了 Python3 并且有完整的标准库即可。
+    包内提供了部分平台的动态库文件，若这之中不存在目标系统，则开发者需要自行编译 HP-Socket 库。

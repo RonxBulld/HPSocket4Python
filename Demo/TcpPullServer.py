@@ -44,11 +44,11 @@ class Server(TcpPull.HP_TcpPullServer):
         self.Send(Sender, ConnID, raw)
 
     @TcpPull.HP_TcpPullServer.EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
         (name, age, desc) = helper.GeneratePkg(Body)
         print('[TRACE] body -> name: %s, age: %d, desc: %s' % (name,age,desc))
         Buf = helper.GeneratePkgBuffer(seq=-1,name=name,age=age,desc=desc)
-        self.Send(Sender, ConnID, raw)
+        self.Send(Sender, ConnID, Body)
 
 if __name__ == '__main__':
     svr = Server()

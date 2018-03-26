@@ -42,7 +42,7 @@ class HP_TcpPull:
         return HPSocket.EnHandleResult.HR_OK
 
     @EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
         """若要使得该事件被触发，必须不重写 OnReceive 事件并且传输协议同官方 DEMO 一致，或者在重写 OnReceive 的时候有意识的调用本函数。"""
         return HPSocket.EnHandleResult.HR_OK
 
@@ -78,7 +78,7 @@ class HP_TcpPullServer(HP_TcpPull):
         return HPSocket.HP_Server_Send(Sender, ConnID, Data)
 
     def Start(self, host, port):
-        self.target = (bytes(host, 'GBK'), port)
+        self.target = (host, port)
         return HPSocket.HP_Server_Start(self.Server, self.target[0], self.target[1])
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###
@@ -103,15 +103,14 @@ class HP_TcpPullServer(HP_TcpPull):
             remain = Length
             while remain >= required:
                 remain -= required
-                Buf = helper.CBuffer(required)
-                result = HPSocket.HP_TcpPullServer_Fetch(Sender, ConnID, Buf.Ptr(), required)  # 这里获取 Body
-                if result == HPSocket.EnFetchResult.FR_OK:
+                result = HPSocket.HP_TcpPullServer_Fetch(Sender, ConnID, required)  # 这里获取 Body
+                if result is not None:
                     if pInfo.is_header:
-                        (Seq,Length)=helper.UnpackTPkgHeader(Buf.Contents().raw)
-                        self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=Buf.Contents().raw)
+                        (Seq,Length)=helper.UnpackTPkgHeader(result)
+                        self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=result)
                         required = Length  # 从 head 切换到 body
                     else:
-                        self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=Buf.Contents().raw, raw=Buf.Contents().raw)
+                        self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=result)
                         required = helper.TPkgHeaderSize  # 从 body 切换到 head
                     pInfo.is_header = not pInfo.is_header
                     pInfo.length = required
@@ -151,7 +150,7 @@ class HP_TcpPullClient(HP_TcpPull):
         return HPSocket.HP_Client_Send(Sender, Data)
 
     def Start(self, host, port):
-        self.target = (bytes(host, 'GBK'), port)
+        self.target = (host, port)
         self.pkgInfo.Reset()
         return HPSocket.HP_Client_Start(self.Client, self.target[0], self.target[1], False)
 
@@ -171,15 +170,14 @@ class HP_TcpPullClient(HP_TcpPull):
         remain = Length
         while remain >= required:
             remain -= required
-            Buf = helper.CBuffer(required)
-            result = HPSocket.HP_TcpPullClient_Fetch(Sender, Buf.Ptr(), required)  # 这里获取 Body
-            if result == HPSocket.EnFetchResult.FR_OK:
+            result = HPSocket.HP_TcpPullClient_Fetch(Sender, required)  # 这里获取 Body
+            if result is not None:
                 if self.pkgInfo.is_header:
-                    (Seq, Length) = helper.UnpackTPkgHeader(Buf.Contents().raw)
-                    self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=Buf.Contents().raw)
+                    (Seq, Length) = helper.UnpackTPkgHeader(result)
+                    self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=result)
                     required = Length  # 从 head 切换到 body
                 else:
-                    self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=Buf.Contents().raw, raw=Buf.Contents().raw)
+                    self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=result)
                     required = helper.TPkgHeaderSize  # 从 body 切换到 head
                 self.pkgInfo.is_header = not self.pkgInfo.is_header
                 self.pkgInfo.length = required
@@ -191,6 +189,9 @@ class HP_TcpPullAgent(HP_TcpPull):
     pkgInfo = {}
     ConnIDPool = {}
     LatestConnID = 0
+    class pkgClass:
+        is_header = True
+        length = helper.TPkgHeaderSize
 
     def __init__(self):
         self.Listener = HPSocket.Create_HP_TcpPullAgentListener()
@@ -228,6 +229,7 @@ class HP_TcpPullAgent(HP_TcpPull):
     def Connect(self, host, port):
         self.LatestConnID = HPSocket.HP_Agent_Connect(self.Agent, host, port)
         self.ConnIDPool[self.LatestConnID] = (host, port)
+        self.pkgInfo[self.LatestConnID] = self.pkgClass()
         return self.LatestConnID
 
     def DisConnect(self, ConnID):
@@ -258,15 +260,14 @@ class HP_TcpPullAgent(HP_TcpPull):
         remain = Length
         while remain >= required:
             remain -= required
-            Buf = helper.CBuffer(required)
-            result = HPSocket.HP_TcpPullAgent_Fetch(Sender, ConnID, Buf.Ptr(), required)  # 这里获取 Body
-            if result == HPSocket.EnFetchResult.FR_OK:
+            result = HPSocket.HP_TcpPullAgent_Fetch(Sender, ConnID, required)  # 这里获取 Body
+            if result is not None:
                 if self.pkgInfo[ConnID].is_header:
-                    (Seq, Length) = helper.UnpackTPkgHeader(Buf.Contents().raw)
-                    self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=Buf.Contents().raw)
+                    (Seq, Length) = helper.UnpackTPkgHeader(result)
+                    self.OnReceiveHead(Sender=Sender, ConnID=ConnID, Seq=Seq, Length=Length, raw=result)
                     required = Length  # 从 head 切换到 body
                 else:
-                    self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=Buf.Contents().raw, raw=Buf.Contents().raw)
+                    self.OnReceiveBody(Sender=Sender, ConnID=ConnID, Body=result)
                     required = helper.TPkgHeaderSize  # 从 body 切换到 head
                 self.pkgInfo[ConnID].is_header = not self.pkgInfo[ConnID].is_header
                 self.pkgInfo[ConnID].length = required

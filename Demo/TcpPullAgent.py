@@ -12,7 +12,7 @@ class Agent(TcpPull.HP_TcpPullAgent):
     @TcpPull.HP_TcpPullAgent.EventDescription
     def OnConnect(self, Sender, ConnID):
         (ip,port)=HPSocket.HP_Agent_GetLocalAddress(Sender=Sender, ConnID=ConnID)
-        print('[TRACER] [Agent] Connect Success: %s:%d in ConnID(%d)' % (ip.decode('GBK'),port,ConnID))
+        print('[TRACER] [Agent] Connect Success: %s:%d in ConnID(%d)' % (ip,port,ConnID))
 
     @TcpPull.HP_TcpPullAgent.EventDescription
     def OnSend(self, Sender, ConnID, Data):
@@ -24,10 +24,9 @@ class Agent(TcpPull.HP_TcpPullAgent):
         # self.Send(Sender=Sender, ConnID=ConnID, Data=raw)
 
     @TcpPull.HP_TcpPullAgent.EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
         (name, age, desc) = helper.GeneratePkg(Body)
         print('[TRACE] [Agent] body(%d) -> name: %s, age: %d, desc: %s' % (ConnID, name, age, desc))
-        # self.Send(Sender=Sender, ConnID=ConnID, Data=raw)
         self.SendTest(ConnID=ConnID)
 
     @TcpPull.HP_TcpPullAgent.EventDescription

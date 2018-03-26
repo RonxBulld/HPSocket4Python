@@ -27,7 +27,7 @@ class Client(TcpPull.HP_TcpPullClient):
         print('[TRACR] [Client] head -> seq: %d, body_len: %d' % (Seq, Length))
 
     @TcpPull.HP_TcpPullClient.EventDescription
-    def OnReceiveBody(self, Sender, ConnID, Body: bytes, raw:bytes):
+    def OnReceiveBody(self, Sender, ConnID, Body: bytes):
         (name, age, desc) = helper.GeneratePkg(Body)
         print('[TRACE] [Client] body -> name: %s, age: %d, desc: %s' % (name,age,desc))
         self.SendTest()

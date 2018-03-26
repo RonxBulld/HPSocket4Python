@@ -529,12 +529,12 @@ def FetchOrPeek(Sender, ConnID, Length, Callback):
     buf = ctypes.create_string_buffer(b' ' * Length, Length)
     if ConnID is not None:
         if Callback(Sender, ConnID, ctypes.cast(buf, ctypes.POINTER(ctypes.c_byte)), Length) == EnFetchResult.FR_OK:
-            return ctypes.string_at(buf, Length).decode('GBK')
+            return ctypes.string_at(buf, Length)
         else:
             return None
     else:
         if Callback(Sender, ctypes.cast(buf, ctypes.POINTER(ctypes.c_byte)), Length) == EnFetchResult.FR_OK:
-            return ctypes.string_at(buf, Length).decode('GBK')
+            return ctypes.string_at(buf, Length)
         else:
             return None
 
@@ -561,12 +561,12 @@ def HP_TcpPullServer_Peek(Server, ConnID, Length):
 _HP_TcpPullClient_Fetch = HP_TcpPullClient_Fetch
 del HP_TcpPullClient_Fetch
 def HP_TcpPullClient_Fetch(Client, Length):
-    return FetchOrPeek(Client, None, Length, HP_TcpPullClient_Fetch)
+    return FetchOrPeek(Client, None, Length, _HP_TcpPullClient_Fetch)
 
 _HP_TcpPullClient_Peek = HP_TcpPullClient_Peek
 del HP_TcpPullClient_Peek
 def HP_TcpPullClient_Peek(Client, Length):
-    return FetchOrPeek(Client, None, Length, HP_TcpPullClient_Peek)
+    return FetchOrPeek(Client, None, Length, _HP_TcpPullClient_Peek)
 
 def ConvertTemplate(Src, ConvCallback, GuessCallback, *OtherArgs):
     (sBuf, sLen) = ValToLP_c_byte(Src)

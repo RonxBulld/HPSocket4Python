@@ -80,7 +80,7 @@ class HP_TcpPackServer(HP_TcpPack):
     def Start(self, host, port, head_flag, size = 0xFFF):
         HPSocket.HP_TcpPackServer_SetMaxPackSize(self.Server, size)
         HPSocket.HP_TcpPackServer_SetPackHeaderFlag(self.Server, head_flag)
-        self.target = (bytes(host,'GBK'), port)
+        self.target = (host, port)
         return HPSocket.HP_Server_Start(self.Server, self.target[0], self.target[1])
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###
@@ -129,7 +129,7 @@ class HP_TcpPackClient(HP_TcpPack):
     def Start(self, host, port, head_flag, size = 0xFFF):
         HPSocket.HP_TcpPackClient_SetMaxPackSize(self.Client, size)
         HPSocket.HP_TcpPackClient_SetPackHeaderFlag(self.Client, head_flag)
-        self.target = (bytes(host, 'GBK'), port)
+        self.target = (host, port)
         return HPSocket.HP_Client_Start(self.Client, self.target[0], self.target[1], False)
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###

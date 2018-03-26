@@ -76,7 +76,7 @@ class HP_TcpPushServer(HP_TcpPush):
         return HPSocket.HP_Server_Send(Server=Sender, ConnID=ConnID, Buffer=Data)
 
     def Start(self, host, port):
-        self.target = (bytes(host, 'GBK'), port)
+        self.target = (host, port)
         return HPSocket.HP_Server_Start(self.Server, self.target[0], self.target[1])
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###
@@ -123,7 +123,7 @@ class HP_TcpPushClient(HP_TcpPush):
         return HPSocket.HP_Client_Send(Client=Sender, Buffer=Data)
 
     def Start(self, host, port):
-        self.target = (bytes(host, 'GBK'), port)
+        self.target = (host, port)
         return HPSocket.HP_Client_Start(self.Client, self.target[0], self.target[1], False)
 
     ### 用户可以覆盖下面的方法以实现业务应用 ###

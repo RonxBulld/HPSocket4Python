@@ -14,7 +14,7 @@ class Agent(TcpPack.HP_TcpPackAgent):
     @EventDescription
     def OnConnect(self, Sender, ConnID):
         (ip,port)=HPSocket.HP_Agent_GetLocalAddress(Sender=Sender, ConnID=ConnID)
-        print('[TRACER] [Agent] Connect Success: %s:%d in ConnID(%d)' % (ip.decode('GBK'),port,ConnID))
+        print('[TRACER] [Agent] Connect Success: %s:%d in ConnID(%d)' % (ip,port,ConnID))
 
     @EventDescription
     def OnSend(self, Sender, ConnID, Data):

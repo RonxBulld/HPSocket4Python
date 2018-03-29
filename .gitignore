@@ -1,3 +1,6 @@
 __pycache__
 *-release-*
 /.idea/workspace.xml
+build
+dist
+HPSocket.egg-info

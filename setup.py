@@ -1,12 +1,17 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name='HPSocket4Python',
-    version='1.0.0',
-    packages=['HPSocket'],
-    url='https://gitee.com/RonxBulld/HPSocket4Python',
+    name='HPSocket',
+    version='0.9.1',
+    packages=find_packages(),
+    package_data={'HPSocket': ['*.dll', '*.so']},
     license='MIT',
-    author='Rexfield',
-    author_email='',
-    description=''
+    author='RonxBulld',
+    keywords=("HPSocket", "hpsocket", "HP-Socket", "hp-socket"),
+    description = "a python binding for HP-Socket 5.1.1",
+    long_description = "a python binding for HP-Socket 5.1.1",
+    url='https://gitee.com/RonxBulld/HPSocket4Python',
+    platforms = "any",
+    zip_safe=False,
+    install_requires = []
 )

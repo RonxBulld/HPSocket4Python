@@ -1,6 +1,9 @@
 # HPSocket4Python
 ## 1.快速预览
 HPSocket4Python 是 HPSocket 的 Python 绑定，力图在 Python 上更方便的使用 HPSocket 组件。目前已经可以通过继承类的方式来使用 Tcp_Push_Server。
+安装方式：
+### 1. pip install HPSocket
+### 2. clone 本项目到本地，然后 import
 代码形如：
 ```
 # coding: utf-8

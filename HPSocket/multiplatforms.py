@@ -14,10 +14,12 @@ def script_path():
 
 
 dist_dict = {
-    ('Windows', 'AMD64', '64bit'): (script_path()+'/HPSocket4C_amd64_64.dll',     'windll'),
-    ('Linux', 'AMD64', '64bit'):   (script_path()+'/libhpsocket4c_amd64_64.so',   'cdll'),
-    ('Linux', 'aarch64', '64bit'): (script_path()+'/libhpsocket4c_aarch64_64.so', 'cdll'),
-    ('Linux', 'armv7l', '32bit'):  (script_path()+'/libhpsocket4c_armv7l_32.so',  'cdll')
+    ('Windows', 'AMD64', '64bit'): (script_path()+'/HPSocket4C_amd64_64.dll',     'WinDLL'),
+    ('Windows', 'x86', '32bit'):   (script_path()+'/HPSocket4C_x86_32.dll',        'WinDLL'),
+    ('Windows', 'AMD64', '32bit'): (script_path()+'/HPSocket4C_x86_32.dll',        'WinDLL'),
+    ('Linux', 'AMD64', '64bit'):   (script_path()+'/libhpsocket4c_amd64_64.so',   'CDLL'),
+    ('Linux', 'aarch64', '64bit'): (script_path()+'/libhpsocket4c_aarch64_64.so', 'CDLL'),
+    ('Linux', 'armv7l', '32bit'):  (script_path()+'/libhpsocket4c_armv7l_32.so',  'CDLL')
 }
 
 
@@ -41,25 +43,28 @@ else:
 
 # 模块识别 x86/amd64/aarch64
 machine = platform.machine()
-if machine == 'x86':
+Targets = [dist[1] for dist in dist_dict.keys()]
+if machine in Targets:
     pass
-elif machine == 'AMD64':
-    pass
-elif machine == 'aarch64':
-    pass
-elif machine == 'armv7l':
-    pass
+# if machine == 'x86':
+#     pass
+# elif machine == 'AMD64':
+#     pass
+# elif machine == 'aarch64':
+#     pass
+# elif machine == 'armv7l':
+#     pass
 else:
-    raise Exception('Unsupport machine paltform. - ' + machine)
+    raise Exception('Unsupported machine paltform. - ' + machine)
 
 dist = (ostype, machine, bits)
 if dist in dist_dict:
     config = dist_dict[dist]
 else:
-    raise Exception('Unsupport triple library : libhpsocket4c_%s_%s.%s' % (machine, bits[:2], 'dll' if ostype=='Linux' else 'so'))
+    raise Exception('Unsupport triple library : %s_%s_%s.%s' % ('HPSocket4C' if ostype=='Windows' else 'libhpsocket4c', machine, bits[:2], 'dll' if ostype=='Windows' else 'so'))
 
 def LoadHPSocketLibrary():
     '''模块自动识别平台类型，然后加载相应的库，返回库把柄'''
     global config
-    dllhandler = getattr(ctypes, config[1]).LoadLibrary(config[0])
+    dllhandler = getattr(ctypes, config[1])(config[0])
     return dllhandler

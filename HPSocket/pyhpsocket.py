@@ -590,258 +590,289 @@ def ConvertTemplate(Src, ConvCallback, GuessCallback, *OtherArgs):
     else:
         raise Exception('A exception return code %d in %s' % (result, repr(ConvCallback)))
 
-_SYS_UrlDecode = SYS_UrlDecode
-del SYS_UrlDecode
-def SYS_UrlDecode(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_UrlDecode, GuessCallback=lambda s,l : _SYS_GuessUrlDecodeBound(s,l))
+if hasattr(HPSocketDLL, "SYS_UrlDecode"):
+    _SYS_UrlDecode = SYS_UrlDecode
+    del SYS_UrlDecode
+    def SYS_UrlDecode(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_UrlDecode, GuessCallback=lambda s,l : _SYS_GuessUrlDecodeBound(s,l))
+
+if hasattr(HPSocketDLL, "SYS_Base64Encode"):
+    _SYS_Base64Encode = SYS_Base64Encode
+    del SYS_Base64Encode
+    def SYS_Base64Encode(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_Base64Encode, GuessCallback=lambda s,l : SYS_GuessBase64EncodeBound(l))
+
+if hasattr(HPSocketDLL, "SYS_GZipUncompress"):
+    _SYS_GZipUncompress = SYS_GZipUncompress
+    del SYS_GZipUncompress
+    def SYS_GZipUncompress(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_GZipUncompress, GuessCallback=lambda s,l : _SYS_GZipGuessUncompressBound(s,l))
+
+if hasattr(HPSocketDLL, "SYS_UrlEncode"):
+    _SYS_UrlEncode = SYS_UrlEncode
+    del SYS_UrlEncode
+    def SYS_UrlEncode(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_UrlEncode, GuessCallback=lambda s,l : _SYS_GuessUrlEncodeBound(s,l))
 
 
-_SYS_Base64Encode = SYS_Base64Encode
-del SYS_Base64Encode
-def SYS_Base64Encode(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_Base64Encode, GuessCallback=lambda s,l : SYS_GuessBase64EncodeBound(l))
+if hasattr(HPSocketDLL, "SYS_Compress"):
+    _SYS_Compress = SYS_Compress
+    del SYS_Compress
+    def SYS_Compress(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_Compress, GuessCallback=lambda s,l : SYS_GuessCompressBound(l, False))
 
 
-_SYS_GZipUncompress = SYS_GZipUncompress
-del SYS_GZipUncompress
-def SYS_GZipUncompress(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_GZipUncompress, GuessCallback=lambda s,l : _SYS_GZipGuessUncompressBound(s,l))
+if hasattr(HPSocketDLL, "SYS_Base64Decode"):
+    _SYS_Base64Decode = SYS_Base64Decode
+    del SYS_Base64Decode
+    def SYS_Base64Decode(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_Base64Decode, GuessCallback=lambda s,l : _SYS_GuessBase64DecodeBound(s,l))
 
 
-_SYS_UrlEncode = SYS_UrlEncode
-del SYS_UrlEncode
-def SYS_UrlEncode(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_UrlEncode, GuessCallback=lambda s,l : _SYS_GuessUrlEncodeBound(s,l))
+if hasattr(HPSocketDLL, "SYS_GZipCompress"):
+    _SYS_GZipCompress = SYS_GZipCompress
+    del SYS_GZipCompress
+    def SYS_GZipCompress(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_GZipCompress, GuessCallback=lambda s,l : SYS_GuessCompressBound(l, True))
 
 
-_SYS_Compress = SYS_Compress
-del SYS_Compress
-def SYS_Compress(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_Compress, GuessCallback=lambda s,l : SYS_GuessCompressBound(l, False))
+if hasattr(HPSocketDLL, "SYS_Uncompress"):
+    _SYS_Uncompress = SYS_Uncompress
+    del SYS_Uncompress
+    def SYS_Uncompress(Src):
+        return ConvertTemplate(Src=Src, ConvCallback=_SYS_Uncompress, GuessCallback=lambda s,l : _SYS_GZipGuessUncompressBound(s,l))
 
 
-_SYS_Base64Decode = SYS_Base64Decode
-del SYS_Base64Decode
-def SYS_Base64Decode(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_Base64Decode, GuessCallback=lambda s,l : _SYS_GuessBase64DecodeBound(s,l))
+if hasattr(HPSocketDLL, "SYS_UncompressEx"):
+    _SYS_UncompressEx = SYS_UncompressEx
+    del SYS_UncompressEx
+    def SYS_UncompressEx(Src, WindowBits, UncompressBoundTimes = 3):
+        return ConvertTemplate(Src, _SYS_UncompressEx, lambda s,l : _SYS_GZipGuessUncompressBound(s,l) * UncompressBoundTimes, WindowBits)
 
 
-_SYS_GZipCompress = SYS_GZipCompress
-del SYS_GZipCompress
-def SYS_GZipCompress(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_GZipCompress, GuessCallback=lambda s,l : SYS_GuessCompressBound(l, True))
+if hasattr(HPSocketDLL, "SYS_CodePageToUnicode"):
+    _SYS_CodePageToUnicode = SYS_CodePageToUnicode
+    del SYS_CodePageToUnicode
+    def SYS_CodePageToUnicode(CodePage, Src):
+        (sBuf, sLen) = ValToLP_c_byte(Src)
+        DstLength = sLen * 2
+        dBuf = ctypes.create_unicode_buffer(' '*DstLength, DstLength)
+        DstLength = ctypes.c_int(DstLength)
+        DstLength = ctypes.c_int(DstLength)
+        if _SYS_CodePageToUnicode(CodePage, sBuf, ctypes.cast(dBuf, LP_c_wchar), ctypes.byref(DstLength)):
+            return ctypes.string_at(dBuf, DstLength.value)
 
 
-_SYS_Uncompress = SYS_Uncompress
-del SYS_Uncompress
-def SYS_Uncompress(Src):
-    return ConvertTemplate(Src=Src, ConvCallback=_SYS_Uncompress, GuessCallback=lambda s,l : _SYS_GZipGuessUncompressBound(s,l))
+if hasattr(HPSocketDLL, "SYS_UnicodeToCodePage"):
+    _SYS_UnicodeToCodePage = SYS_UnicodeToCodePage
+    del SYS_UnicodeToCodePage
+    def SYS_UnicodeToCodePage(CodePage, WSrc):
+        (sBuf, sLen) = WValToLP_c_wchar(WSrc)
+        DstLength = sLen * 4
+        dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
+        if _SYS_UnicodeToCodePage(CodePage, sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
+            return ctypes.string_at(dBuf, DstLength.value)
 
-_SYS_UncompressEx = SYS_UncompressEx
-del SYS_UncompressEx
-def SYS_UncompressEx(Src, WindowBits, UncompressBoundTimes = 3):
-    return ConvertTemplate(Src, _SYS_UncompressEx, lambda s,l : _SYS_GZipGuessUncompressBound(s,l) * UncompressBoundTimes, WindowBits)
 
-_SYS_CodePageToUnicode = SYS_CodePageToUnicode
-del SYS_CodePageToUnicode
-def SYS_CodePageToUnicode(CodePage, Src):
-    (sBuf, sLen) = ValToLP_c_byte(Src)
-    DstLength = sLen * 2
-    dBuf = ctypes.create_unicode_buffer(' '*DstLength, DstLength)
-    DstLength = ctypes.c_int(DstLength)
-    DstLength = ctypes.c_int(DstLength)
-    if _SYS_CodePageToUnicode(CodePage, sBuf, ctypes.cast(dBuf, LP_c_wchar), ctypes.byref(DstLength)):
-        return ctypes.string_at(dBuf, DstLength.value)
+if hasattr(HPSocketDLL, "SYS_CompressEx"):
+    _SYS_CompressEx = SYS_CompressEx
+    del SYS_CompressEx
+    def SYS_CompressEx(Src, Level, Method, WindowBits, MemLevel, Strategy):
+        return ConvertTemplate(Src, _SYS_CompressEx, lambda s,l : SYS_GuessCompressBound(l, False), Level, Method, WindowBits, MemLevel, Strategy)
 
-_SYS_UnicodeToCodePage = SYS_UnicodeToCodePage
-del SYS_UnicodeToCodePage
-def SYS_UnicodeToCodePage(CodePage, WSrc):
-    (sBuf, sLen) = WValToLP_c_wchar(WSrc)
-    DstLength = sLen * 4
-    dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
-    if _SYS_UnicodeToCodePage(CodePage, sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
-        return ctypes.string_at(dBuf, DstLength.value)
-
-_SYS_CompressEx = SYS_CompressEx
-del SYS_CompressEx
-def SYS_CompressEx(Src, Level, Method, WindowBits, MemLevel, Strategy):
-    return ConvertTemplate(Src, _SYS_CompressEx, lambda s,l : SYS_GuessCompressBound(l, False), Level, Method, WindowBits, MemLevel, Strategy)
 
 def GuessTemplate(Src, Callback):
     (sBuf, sLen) = ValToLP_c_byte(Src)
     return Callback(sBuf, sLen)
 
-_SYS_GZipGuessUncompressBound = SYS_GZipGuessUncompressBound
-del SYS_GZipGuessUncompressBound
-def SYS_GZipGuessUncompressBound(Src):
-    return GuessTemplate(Src, _SYS_GZipGuessUncompressBound)
+if hasattr(HPSocketDLL, "SYS_GZipGuessUncompressBound"):
+    _SYS_GZipGuessUncompressBound = SYS_GZipGuessUncompressBound
+    del SYS_GZipGuessUncompressBound
+    def SYS_GZipGuessUncompressBound(Src):
+        return GuessTemplate(Src, _SYS_GZipGuessUncompressBound)
 
-_SYS_GuessUrlDecodeBound = SYS_GuessUrlDecodeBound
-del SYS_GuessUrlDecodeBound
-def SYS_GuessUrlDecodeBound(Src):
-    return GuessTemplate(Src, _SYS_GuessUrlDecodeBound)
+if hasattr(HPSocketDLL, "SYS_GuessUrlDecodeBound"):
+    _SYS_GuessUrlDecodeBound = SYS_GuessUrlDecodeBound
+    del SYS_GuessUrlDecodeBound
+    def SYS_GuessUrlDecodeBound(Src):
+        return GuessTemplate(Src, _SYS_GuessUrlDecodeBound)
 
-_SYS_GuessUrlEncodeBound = SYS_GuessUrlEncodeBound
-del SYS_GuessUrlEncodeBound
-def SYS_GuessUrlEncodeBound(Src):
-    return GuessTemplate(Src, _SYS_GuessUrlEncodeBound)
+if hasattr(HPSocketDLL, "SYS_GuessUrlEncodeBound"):
+    _SYS_GuessUrlEncodeBound = SYS_GuessUrlEncodeBound
+    del SYS_GuessUrlEncodeBound
+    def SYS_GuessUrlEncodeBound(Src):
+        return GuessTemplate(Src, _SYS_GuessUrlEncodeBound)
 
-_SYS_GuessBase64DecodeBound = SYS_GuessBase64DecodeBound
-del SYS_GuessBase64DecodeBound
-def SYS_GuessBase64DecodeBound(Src):
-    return GuessTemplate(Src, _SYS_GuessBase64DecodeBound)
+if hasattr(HPSocketDLL, "SYS_GuessBase64DecodeBound"):
+    _SYS_GuessBase64DecodeBound = SYS_GuessBase64DecodeBound
+    del SYS_GuessBase64DecodeBound
+    def SYS_GuessBase64DecodeBound(Src):
+        return GuessTemplate(Src, _SYS_GuessBase64DecodeBound)
 
-_SYS_EnumHostIPAddresses = SYS_EnumHostIPAddresses
-_SYS_FreeHostIPAddresses = SYS_FreeHostIPAddresses
-del SYS_EnumHostIPAddresses
-del SYS_FreeHostIPAddresses
-def SYS_EnumHostIPAddresses(Host, En_HP_IPAddrType):
-    Host = ctypes.create_string_buffer(bytes(Host, 'GBK'))
-    Count = ctypes.c_int(0)
-    lp = ctypes.c_void_p(0)
-    lpp = ctypes.cast(lp, ctypes.POINTER(HP_LPTIPAddr))
-    IPAddrs = []
-    if _SYS_EnumHostIPAddresses(ctypes.cast(Host, ctypes.c_char_p), En_HP_IPAddrType, ctypes.byref(lpp), ctypes.byref(Count)):
-        # lpp.contents.contents.[type|address]
-        # lpp 指向一个指针数组，数组中的每一项都是 HP_LPTIPAddr
-        zlpp = ctypes.cast(lpp, ctypes.POINTER(HP_LPTIPAddr * Count.value))
-        for i in range(Count.value):
-            IPAddr = zlpp.contents[i].contents
-            IPAddrs.append((IPAddr.type, IPAddr.address.decode()))
-        _SYS_FreeHostIPAddresses(lpp)
-        return IPAddrs
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_EnumHostIPAddresses") and hasattr(HPSocketDLL, "SYS_FreeHostIPAddresses"):
+    _SYS_EnumHostIPAddresses = SYS_EnumHostIPAddresses
+    _SYS_FreeHostIPAddresses = SYS_FreeHostIPAddresses
+    del SYS_EnumHostIPAddresses
+    del SYS_FreeHostIPAddresses
+    def SYS_EnumHostIPAddresses(Host, En_HP_IPAddrType):
+        Host = ctypes.create_string_buffer(bytes(Host, 'GBK'))
+        Count = ctypes.c_int(0)
+        lp = ctypes.c_void_p(0)
+        lpp = ctypes.cast(lp, ctypes.POINTER(HP_LPTIPAddr))
+        IPAddrs = []
+        if _SYS_EnumHostIPAddresses(ctypes.cast(Host, ctypes.c_char_p), En_HP_IPAddrType, ctypes.byref(lpp), ctypes.byref(Count)):
+            # lpp.contents.contents.[type|address]
+            # lpp 指向一个指针数组，数组中的每一项都是 HP_LPTIPAddr
+            zlpp = ctypes.cast(lpp, ctypes.POINTER(HP_LPTIPAddr * Count.value))
+            for i in range(Count.value):
+                IPAddr = zlpp.contents[i].contents
+                IPAddrs.append((IPAddr.type, IPAddr.address.decode()))
+            _SYS_FreeHostIPAddresses(lpp)
+            return IPAddrs
+        else:
+            return None
 
-_SYS_GbkToUnicode = SYS_GbkToUnicode
-del SYS_GbkToUnicode
-def SYS_GbkToUnicode(Src):
-    (bSrc, sLen) = ValToLP_c_byte(Src)
-    dLen = sLen * 3
-    bDst = ctypes.create_unicode_buffer(u' ' * dLen, dLen)
-    dLen = ctypes.c_long(dLen)
-    if _SYS_GbkToUnicode(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_wchar_p), ctypes.byref(dLen)):
-        return bDst.value
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_GbkToUnicode"):
+    _SYS_GbkToUnicode = SYS_GbkToUnicode
+    del SYS_GbkToUnicode
+    def SYS_GbkToUnicode(Src):
+        (bSrc, sLen) = ValToLP_c_byte(Src)
+        dLen = sLen * 3
+        bDst = ctypes.create_unicode_buffer(u' ' * dLen, dLen)
+        dLen = ctypes.c_long(dLen)
+        if _SYS_GbkToUnicode(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_wchar_p), ctypes.byref(dLen)):
+            return bDst.value
+        else:
+            return None
 
-_SYS_Utf8ToUnicode = SYS_Utf8ToUnicode
-del SYS_Utf8ToUnicode
-def SYS_Utf8ToUnicode(Src):
-    (bSrc, sLen) = ValToLP_c_byte(Src, 'utf-8')
-    dLen = sLen * 3
-    bDst = ctypes.create_unicode_buffer(u' ' * dLen, dLen)
-    dLen = ctypes.c_long(dLen)
-    if _SYS_Utf8ToUnicode(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_wchar_p), ctypes.byref(dLen)):
-        return bDst.value
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_Utf8ToUnicode"):
+    _SYS_Utf8ToUnicode = SYS_Utf8ToUnicode
+    del SYS_Utf8ToUnicode
+    def SYS_Utf8ToUnicode(Src):
+        (bSrc, sLen) = ValToLP_c_byte(Src, 'utf-8')
+        dLen = sLen * 3
+        bDst = ctypes.create_unicode_buffer(u' ' * dLen, dLen)
+        dLen = ctypes.c_long(dLen)
+        if _SYS_Utf8ToUnicode(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_wchar_p), ctypes.byref(dLen)):
+            return bDst.value
+        else:
+            return None
 
-_SYS_GbkToUtf8 = SYS_GbkToUtf8
-del SYS_GbkToUtf8
-def SYS_GbkToUtf8(Src):
-    (bSrc, sLen) = ValToLP_c_byte(Src)
-    dLen = sLen * 3
-    bDst = ctypes.create_string_buffer(b' ' * dLen, dLen)
-    dLen = ctypes.c_long(dLen)
-    if _SYS_GbkToUtf8(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_char_p), ctypes.byref(dLen)):
-        return bDst.value
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_GbkToUtf8"):
+    _SYS_GbkToUtf8 = SYS_GbkToUtf8
+    del SYS_GbkToUtf8
+    def SYS_GbkToUtf8(Src):
+        (bSrc, sLen) = ValToLP_c_byte(Src)
+        dLen = sLen * 3
+        bDst = ctypes.create_string_buffer(b' ' * dLen, dLen)
+        dLen = ctypes.c_long(dLen)
+        if _SYS_GbkToUtf8(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_char_p), ctypes.byref(dLen)):
+            return bDst.value
+        else:
+            return None
 
-_SYS_Utf8ToGbk = SYS_Utf8ToGbk
-del SYS_Utf8ToGbk
-def SYS_Utf8ToGbk(Src):
-    (bSrc, sLen) = ValToLP_c_byte(Src)
-    dLen = sLen * 3
-    bDst = ctypes.create_string_buffer(b' ' * dLen, dLen)
-    dLen = ctypes.c_long(dLen)
-    if _SYS_Utf8ToGbk(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_char_p), ctypes.byref(dLen)):
-        return bDst.value
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_Utf8ToGbk"):
+    _SYS_Utf8ToGbk = SYS_Utf8ToGbk
+    del SYS_Utf8ToGbk
+    def SYS_Utf8ToGbk(Src):
+        (bSrc, sLen) = ValToLP_c_byte(Src)
+        dLen = sLen * 3
+        bDst = ctypes.create_string_buffer(b' ' * dLen, dLen)
+        dLen = ctypes.c_long(dLen)
+        if _SYS_Utf8ToGbk(ctypes.cast(bSrc, ctypes.c_char_p), ctypes.cast(bDst, ctypes.c_char_p), ctypes.byref(dLen)):
+            return bDst.value
+        else:
+            return None
 
-_SYS_GetIPAddress = SYS_GetIPAddress
-del SYS_GetIPAddress
-def SYS_GetIPAddress(Host):
-    IPLen = 30
-    cIP = ctypes.create_string_buffer(b' '*IPLen, IPLen)
-    IPLen = ctypes.c_int(IPLen)
-    (bHost, sLen) = ValToLP_c_byte(Host)
-    IPAddrType = ctypes.c_int(0)
-    if _SYS_GetIPAddress(ctypes.cast(bHost, ctypes.c_char_p), ctypes.cast(cIP, ctypes.c_char_p), ctypes.byref(IPLen), ctypes.byref(IPAddrType)):
-        return (ctypes.string_at(cIP, IPLen.value).decode('GBK'), IPAddrType.value)
-    else:
-        return None
+if hasattr(HPSocketDLL, "SYS_GetIPAddress"):
+    _SYS_GetIPAddress = SYS_GetIPAddress
+    del SYS_GetIPAddress
+    def SYS_GetIPAddress(Host):
+        IPLen = 30
+        cIP = ctypes.create_string_buffer(b' '*IPLen, IPLen)
+        IPLen = ctypes.c_int(IPLen)
+        (bHost, sLen) = ValToLP_c_byte(Host)
+        IPAddrType = ctypes.c_int(0)
+        if _SYS_GetIPAddress(ctypes.cast(bHost, ctypes.c_char_p), ctypes.cast(cIP, ctypes.c_char_p), ctypes.byref(IPLen), ctypes.byref(IPAddrType)):
+            return (ctypes.string_at(cIP, IPLen.value).decode('GBK'), IPAddrType.value)
+        else:
+            return None
 
-_SYS_GetSocketLocalAddress = SYS_GetSocketLocalAddress
-del SYS_GetSocketLocalAddress
-def SYS_GetSocketLocalAddress(socket):
-    return GetAddressTemplate(socket, None, _SYS_GetSocketLocalAddress)
+if hasattr(HPSocketDLL, "SYS_GetSocketLocalAddress"):
+    _SYS_GetSocketLocalAddress = SYS_GetSocketLocalAddress
+    del SYS_GetSocketLocalAddress
+    def SYS_GetSocketLocalAddress(socket):
+        return GetAddressTemplate(socket, None, _SYS_GetSocketLocalAddress)
 
-_SYS_GetSocketRemoteAddress = SYS_GetSocketRemoteAddress
-del SYS_GetSocketRemoteAddress
-def SYS_GetSocketRemoteAddress(socket):
-    return GetAddressTemplate(socket, None, _SYS_GetSocketRemoteAddress)
+if hasattr(HPSocketDLL, "SYS_GetSocketRemoteAddress"):
+    _SYS_GetSocketRemoteAddress = SYS_GetSocketRemoteAddress
+    del SYS_GetSocketRemoteAddress
+    def SYS_GetSocketRemoteAddress(socket):
+        return GetAddressTemplate(socket, None, _SYS_GetSocketRemoteAddress)
 
-_SYS_SetSocketOption = SYS_SetSocketOption
-del SYS_SetSocketOption
-def SYS_SetSocketOption(socket, level, name, val, len):
-    if isinstance(val, int):
-        val = ctypes.c_int(val)
-    elif isinstance(val, str) or isinstance(val, bytes):
-        (val,tlen) = ValToLP_c_byte(val)
-    elif isinstance(val, bool):
-        val = ctypes.c_bool(val)
-    elif isinstance(val, float):
-        val = ctypes.c_float(val)
-    else:
-        raise TypeError('Only int/bytes/str/bool/float Support.')
-    return _SYS_SetSocketOption(socket, level, name, ctypes.cast(ctypes.addressof(val), ctypes.c_void_p), len)
+if hasattr(HPSocketDLL, "SYS_SetSocketOption"):
+    _SYS_SetSocketOption = SYS_SetSocketOption
+    del SYS_SetSocketOption
+    def SYS_SetSocketOption(socket, level, name, val, len):
+        if isinstance(val, int):
+            val = ctypes.c_int(val)
+        elif isinstance(val, str) or isinstance(val, bytes):
+            (val,tlen) = ValToLP_c_byte(val)
+        elif isinstance(val, bool):
+            val = ctypes.c_bool(val)
+        elif isinstance(val, float):
+            val = ctypes.c_float(val)
+        else:
+            raise TypeError('Only int/bytes/str/bool/float Support.')
+        return _SYS_SetSocketOption(socket, level, name, ctypes.cast(ctypes.addressof(val), ctypes.c_void_p), len)
 
-_SYS_GetSocketOption = SYS_GetSocketOption
-del SYS_GetSocketOption
-def SYS_GetSocketOption(socket, level, name, type, len):
-    buf = ctypes.create_string_buffer(b' '*len, len)
-    _SYS_GetSocketOption(socket, level, name, ctypes.cast(buf, ctypes.c_void_p), ctypes.byref(len))
-    if type is int:
-        return ctypes.cast(buf, ctypes.POINTER(ctypes.c_int)).contents.value
-    elif type is str:
-        return ctypes.string_at(buf, len.value).decode('GBK')
-    elif type is bytes:
-        return ctypes.string_at(buf, len.value)
-    elif type is bool:
-        return ctypes.cast(buf, ctypes.POINTER(ctypes.c_bool)).contents.value
-    elif type is float:
-        return ctypes.cast(buf, ctypes.POINTER(ctypes.c_float)).contents.value
-    else:
-        raise TypeError('Only int/bytes/str/bool/float Support.')
+if hasattr(HPSocketDLL, "SYS_GetSocketOption"):
+    _SYS_GetSocketOption = SYS_GetSocketOption
+    del SYS_GetSocketOption
+    def SYS_GetSocketOption(socket, level, name, type, len):
+        buf = ctypes.create_string_buffer(b' '*len, len)
+        _SYS_GetSocketOption(socket, level, name, ctypes.cast(buf, ctypes.c_void_p), ctypes.byref(len))
+        if type is int:
+            return ctypes.cast(buf, ctypes.POINTER(ctypes.c_int)).contents.value
+        elif type is str:
+            return ctypes.string_at(buf, len.value).decode('GBK')
+        elif type is bytes:
+            return ctypes.string_at(buf, len.value)
+        elif type is bool:
+            return ctypes.cast(buf, ctypes.POINTER(ctypes.c_bool)).contents.value
+        elif type is float:
+            return ctypes.cast(buf, ctypes.POINTER(ctypes.c_float)).contents.value
+        else:
+            raise TypeError('Only int/bytes/str/bool/float Support.')
 
-_SYS_IsIPAddress = SYS_IsIPAddress
-del SYS_IsIPAddress
-def SYS_IsIPAddress(Address):
-    (Address, Length) = ValToLP_c_byte(Address)
-    type = ctypes.c_int(0)
-    if _SYS_IsIPAddress(ctypes.cast(Address, ctypes.c_char_p), ctypes.cast(ctypes.byref(type), ctypes.POINTER(En_HP_IPAddrType))):
-        return type.value
-    else:
-        return False
+if hasattr(HPSocketDLL, "SYS_IsIPAddress"):
+    _SYS_IsIPAddress = SYS_IsIPAddress
+    del SYS_IsIPAddress
+    def SYS_IsIPAddress(Address):
+        (Address, Length) = ValToLP_c_byte(Address)
+        type = ctypes.c_int(0)
+        if _SYS_IsIPAddress(ctypes.cast(Address, ctypes.c_char_p), ctypes.cast(ctypes.byref(type), ctypes.POINTER(En_HP_IPAddrType))):
+            return type.value
+        else:
+            return False
 
-_SYS_UnicodeToUtf8 = SYS_UnicodeToUtf8
-del SYS_UnicodeToUtf8
-def SYS_UnicodeToUtf8(WSrc):
-    (sBuf, sLen) = WValToLP_c_wchar(WSrc)
-    DstLength = sLen * 3
-    dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
-    if _SYS_UnicodeToUtf8(sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
-        return ctypes.string_at(dBuf, DstLength.value)
+if hasattr(HPSocketDLL, "SYS_UnicodeToUtf8"):
+    _SYS_UnicodeToUtf8 = SYS_UnicodeToUtf8
+    del SYS_UnicodeToUtf8
+    def SYS_UnicodeToUtf8(WSrc):
+        (sBuf, sLen) = WValToLP_c_wchar(WSrc)
+        DstLength = sLen * 3
+        dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
+        if _SYS_UnicodeToUtf8(sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
+            return ctypes.string_at(dBuf, DstLength.value)
 
-_SYS_UnicodeToGbk = SYS_UnicodeToGbk
-del SYS_UnicodeToGbk
-def SYS_UnicodeToGbk(WSrc):
-    (sBuf, sLen) = WValToLP_c_wchar(WSrc)
-    DstLength = sLen * 3
-    dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
-    if _SYS_UnicodeToGbk(sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
-        return ctypes.string_at(dBuf, DstLength.value)
+if hasattr(HPSocketDLL, "SYS_UnicodeToGbk"):
+    _SYS_UnicodeToGbk = SYS_UnicodeToGbk
+    del SYS_UnicodeToGbk
+    def SYS_UnicodeToGbk(WSrc):
+        (sBuf, sLen) = WValToLP_c_wchar(WSrc)
+        DstLength = sLen * 3
+        dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
+        if _SYS_UnicodeToGbk(sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
+            return ctypes.string_at(dBuf, DstLength.value)
 

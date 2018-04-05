@@ -50,6 +50,11 @@ SOCKET = ctypes.POINTER(ctypes.c_uint)
 #  * limitations under the License.
 #
 
+HP_VERSION_MAJOR = 5
+HP_VERSION_MINOR = 2
+HP_VERSION_REVISE = 1
+HP_VERSION_BUILD = 2
+
 
 # ***************************************************************************************************************************************************
 # *************************************************************** Base Type Definitions *************************************************************
@@ -645,3 +650,14 @@ LPCOOKIE = ctypes.POINTER(TNVPair)
 HP_LPCOOKIE = ctypes.POINTER(TNVPair)
 
 
+# /************************************************************************
+# 名称：获取 HPSocket 版本号
+# 描述：版本号（4 个字节分别为：主版本号，子版本号，修正版本号，构建编号）
+# ************************************************************************/
+# inline DWORD GetHPSocketVersion()
+# {
+# 	return (HP_VERSION_MAJOR << 24) | (HP_VERSION_MINOR << 16) | (HP_VERSION_REVISE << 8) | HP_VERSION_BUILD;
+# }
+
+def GetHPSocketVersion():
+    return (HP_VERSION_MAJOR << 24) | (HP_VERSION_MINOR << 16) | (HP_VERSION_REVISE << 8) | HP_VERSION_BUILD

@@ -44,6 +44,11 @@ else:
 # 模块识别 x86/amd64/aarch64
 machine = platform.machine()
 Targets = [dist[1] for dist in dist_dict.keys()]
+
+# 64位处理器可能有多种别名，这里进行归一化处理
+if machine in {'x64', 'x86_64'}:
+    machine = 'AMD64'
+
 if machine in Targets:
     pass
 # if machine == 'x86':

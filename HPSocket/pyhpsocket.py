@@ -312,7 +312,7 @@ def HP_Server_GetAllConnectionIDs(Server):
     Count = HP_Server_GetConnectionCount(Server)
     cCount = ctypes.c_uint(Count)
     IDs = (ctypes.c_uint64 * Count)()
-    pIDs = ctypes.cast(IDs, ctypes.POINTER(ctypes.c_uint))
+    pIDs = ctypes.cast(IDs, ctypes.POINTER(ctypes.c_ulong))
     if _HP_Server_GetAllConnectionIDs(Server, pIDs, ctypes.byref(cCount)):
         return list(IDs)
     else:
@@ -649,29 +649,29 @@ if hasattr(HPSocketDLL, "SYS_UncompressEx"):
     def SYS_UncompressEx(Src, WindowBits, UncompressBoundTimes = 3):
         return ConvertTemplate(Src, _SYS_UncompressEx, lambda s,l : _SYS_GZipGuessUncompressBound(s,l) * UncompressBoundTimes, WindowBits)
 
+#
+# if hasattr(HPSocketDLL, "SYS_CodePageToUnicode"):
+#     _SYS_CodePageToUnicode = SYS_CodePageToUnicode
+#     del SYS_CodePageToUnicode
+#     def SYS_CodePageToUnicode(CodePage, Src):
+#         (sBuf, sLen) = ValToLP_c_byte(Src)
+#         DstLength = sLen * 2
+#         dBuf = ctypes.create_unicode_buffer(' '*DstLength, DstLength)
+#         DstLength = ctypes.c_int(DstLength)
+#         DstLength = ctypes.c_int(DstLength)
+#         if _SYS_CodePageToUnicode(CodePage, sBuf, ctypes.cast(dBuf, LP_c_wchar), ctypes.byref(DstLength)):
+#             return ctypes.string_at(dBuf, DstLength.value)
 
-if hasattr(HPSocketDLL, "SYS_CodePageToUnicode"):
-    _SYS_CodePageToUnicode = SYS_CodePageToUnicode
-    del SYS_CodePageToUnicode
-    def SYS_CodePageToUnicode(CodePage, Src):
-        (sBuf, sLen) = ValToLP_c_byte(Src)
-        DstLength = sLen * 2
-        dBuf = ctypes.create_unicode_buffer(' '*DstLength, DstLength)
-        DstLength = ctypes.c_int(DstLength)
-        DstLength = ctypes.c_int(DstLength)
-        if _SYS_CodePageToUnicode(CodePage, sBuf, ctypes.cast(dBuf, LP_c_wchar), ctypes.byref(DstLength)):
-            return ctypes.string_at(dBuf, DstLength.value)
-
-
-if hasattr(HPSocketDLL, "SYS_UnicodeToCodePage"):
-    _SYS_UnicodeToCodePage = SYS_UnicodeToCodePage
-    del SYS_UnicodeToCodePage
-    def SYS_UnicodeToCodePage(CodePage, WSrc):
-        (sBuf, sLen) = WValToLP_c_wchar(WSrc)
-        DstLength = sLen * 4
-        dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
-        if _SYS_UnicodeToCodePage(CodePage, sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
-            return ctypes.string_at(dBuf, DstLength.value)
+#
+# if hasattr(HPSocketDLL, "SYS_UnicodeToCodePage"):
+#     _SYS_UnicodeToCodePage = SYS_UnicodeToCodePage
+#     del SYS_UnicodeToCodePage
+#     def SYS_UnicodeToCodePage(CodePage, WSrc):
+#         (sBuf, sLen) = WValToLP_c_wchar(WSrc)
+#         DstLength = sLen * 4
+#         dBuf = ctypes.create_string_buffer(b' '*DstLength, DstLength)
+#         if _SYS_UnicodeToCodePage(CodePage, sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
+#             return ctypes.string_at(dBuf, DstLength.value)
 
 
 if hasattr(HPSocketDLL, "SYS_CompressEx"):
@@ -876,3 +876,48 @@ if hasattr(HPSocketDLL, "SYS_UnicodeToGbk"):
         if _SYS_UnicodeToGbk(sBuf, ctypes.cast(dBuf, LP_c_byte), ctypes.byref(DstLength)):
             return ctypes.string_at(dBuf, DstLength.value)
 
+_HP_Agent_ConnectWithLocalPort = HP_Agent_ConnectWithLocalPort
+del HP_Agent_ConnectWithLocalPort
+def HP_Agent_ConnectWithLocalPort(Agent, RemoteIP, RemotePort, LocalPort = 0):
+    global AgentStoreDict
+    ConnID = 0
+    cConnID = ctypes.c_ulong(ConnID)
+    pConnID = ctypes.pointer(cConnID)
+    RemoteIP = bytes(RemoteIP, 'GBK')
+    AgentStoreDict[Agent] = RemoteIP
+    if (HP_Agent_ConnectWithLocalPort(Agent, RemoteIP, RemotePort, pConnID, LocalPort)):
+        ConnID = pConnID.contents.value
+        return ConnID
+    else:
+        return False
+
+_HP_Agent_ConnectWithExtraAndLocalPort = HP_Agent_ConnectWithExtraAndLocalPort
+del HP_Agent_ConnectWithExtraAndLocalPort
+def HP_Agent_ConnectWithExtraAndLocalPort(Agent, RemoteIP, RemotePort, Extra, LocalPort):
+    global AgentStoreDict
+    ConnID = 0
+    cConnID = ctypes.c_ulong(ConnID)
+    pConnID = ctypes.pointer(cConnID)
+    RemoteIP = bytes(RemoteIP, 'GBK')
+    AgentStoreDict[Agent] = RemoteIP
+    if _HP_Agent_ConnectWithExtraAndLocalPort(Agent, RemoteIP, RemotePort, pConnID, LocalPort):
+        ConnID = pConnID.contents.value
+        AgentConnectionExtra.Set(S=Agent, C=ConnID, Data=Extra)
+        return ConnID
+    else:
+        return False
+
+_HP_HttpCookie_HLP_ParseExpires = HP_HttpCookie_HLP_ParseExpires
+del HP_HttpCookie_HLP_ParseExpires
+def HP_HttpCookie_HLP_ParseExpires(CookieExpires):
+    tmExpires = ctypes.c_int(0)
+    ptmExpires = ctypes.pointer(tmExpires)
+    if HP_HttpCookie_HLP_ParseExpires(CookieExpires):
+        return ptmExpires.contents.value
+    else:
+        return False
+
+_HP_HttpClient_GetHeader = HP_HttpClient_GetHeader
+del HP_HttpClient_GetHeader
+def HP_HttpClient_GetHeader(Client, Name):
+    lpszValue = ctypes.c_char_p(0)

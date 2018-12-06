@@ -75,7 +75,7 @@ class HP_TcpPushServer(HP_TcpPush):
         # return HPSocket.HP_Server_Sendets(Server=Sender, ConnID=ConnID, Bufs=Data)
         return HPSocket.HP_Server_Send(Server=Sender, ConnID=ConnID, Buffer=Data)
 
-    def Start(self, host, port):
+    def Start(self, host : str, port : int):
         self.target = (host, port)
         return HPSocket.HP_Server_Start(self.Server, self.target[0], self.target[1])
 

@@ -1,8 +1,8 @@
 # coding: utf-8
-'''HPTypeDef.h 的转化文件，包含各种预定义类型'''
+
 ####################################
 # Converter: codeblock-conv-gui.py #
-# Version: 1.2 Developer Edition   #
+# Version: 2.0 Developer Edition   #
 # Author: Rexfield                 #
 ####################################
 
@@ -12,15 +12,19 @@ import ctypes
 # 保持兼容性的类型定义
 PVOID = ctypes.c_void_p
 LPVOID = ctypes.c_void_p
+INT = ctypes.c_int
 ULONG_PTR = ctypes.POINTER(ctypes.c_ulong)
 UINT_PTR = ctypes.POINTER(ctypes.c_uint)
 nullptr = PVOID(0)
+WPARAM = ctypes.c_long
+LPARAM = ctypes.c_long
+LPBYTE = ctypes.POINTER(ctypes.c_byte)
 
 
 class WSABUF(ctypes.Structure):
     _fields_ = [
-        ('len', ctypes.c_uint),
-        ('buf', ctypes.POINTER(ctypes.c_byte))
+        ('len', ctypes.c_ulong),
+        ('buf', ctypes.c_char_p)
     ]
 
 
@@ -50,10 +54,29 @@ SOCKET = ctypes.POINTER(ctypes.c_uint)
 #  * limitations under the License.
 #
 
+
+#  HP-Socket 版本号
+
 HP_VERSION_MAJOR = 5
-HP_VERSION_MINOR = 2
-HP_VERSION_REVISE = 1
-HP_VERSION_BUILD = 2
+HP_VERSION_MINOR = 4
+HP_VERSION_REVISE = 2
+HP_VERSION_BUILD = 4
+
+# #define _SSL_DISABLED				// 禁用 SSL
+# #define _HTTP_DISABLED			// 禁用 HTTP
+# #define _ZLIB_DISABLED			// 禁用 ZLIB
+
+#  是否启用 SSL，如果定义了 _SSL_DISABLED 则禁用（默认：启用）
+
+
+#  是否启用 HTTP，如果定义了 _HTTP_DISABLED 则禁用（默认：启用）
+
+
+#  是否启用 ZLIB，如果定义了 _ZLIB_DISABLED 则禁用（默认：启用）
+
+
+# ************************************************
+# ********* imports / exports HPSocket4C *********
 
 
 # ***************************************************************************************************************************************************
@@ -302,10 +325,79 @@ HP_TIPAddr = TIPAddr
 HP_LPTIPAddr = ctypes.POINTER(TIPAddr)
 
 
+# ***********************************************************************
+# 名称：拒绝策略
+# 描述：调用被拒绝后的处理策略
+# ***********************************************************************
+class EnRejectedPolicy():
+    """
+    typedef enum EnRejectedPolicy
+    {
+    	TRP_CALL_FAIL	= 0,	// 立刻返回失败
+    	TRP_WAIT_FOR	= 1,	// 等待（直到成功、超时或线程池关闭等原因导致失败）
+    	TRP_CALLER_RUN	= 2,	// 调用者线程直接执行
+    } En_HP_RejectedPolicy;
+    """
+    TRP_CALL_FAIL = 0  # // 立刻返回失败
+    TRP_WAIT_FOR = 1  # // 等待（直到成功、超时或线程池关闭等原因导致失败）
+    TRP_CALLER_RUN = 2  # // 调用者线程直接执行
+
+
+En_HP_RejectedPolicy = ctypes.c_int
+
+
+# ***********************************************************************
+# 名称：任务缓冲区类型
+# 描述：TSockeTask 对象创建和销毁时，根据不同类型的缓冲区类型作不同的处理
+# ***********************************************************************
+class EnTaskBufferType():
+    """
+    typedef enum EnTaskBufferType
+    {
+    	TBT_COPY		= 0,	// 深拷贝
+    	TBT_REFER		= 1,	// 浅拷贝
+    	TBT_ATTACH		= 2,	// 连接（不负责创建，但负责销毁）
+    } En_HP_TaskBufferType;
+    """
+    TBT_COPY = 0  # // 深拷贝
+    TBT_REFER = 1  # // 浅拷贝
+    TBT_ATTACH = 2  # // 连接（不负责创建，但负责销毁）
+
+
+En_HP_TaskBufferType = ctypes.c_int
+
+# ***********************************************************************
+# 名称：任务处理函数
+# 描述：任务处理入口函数
+# 参数：pvArg -- 自定义参数
+# 返回值：（无）
+# ***********************************************************************
+# typedef VOID (__stdcall *Fn_TaskProc)(PVOID pvArg);
+Fn_TaskProc = ctypes.CFUNCTYPE(None, PVOID)
+# typedef Fn_TaskProc HP_Fn_TaskProc;
+HP_Fn_TaskProc = Fn_TaskProc
+
+
+# ***********************************************************************
+# 名称：Socket 任务处理函数
+# 描述：Socket 任务处理入口函数
+# 参数：pTask -- Socket 任务结构体指针
+# 返回值：（无）
+# ***********************************************************************
+# typedef VOID (__stdcall *Fn_SocketTaskProc)(TSocketTask* pTask);
+Fn_SocketTaskProc = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+# typedef Fn_SocketTaskProc HP_Fn_SocketTaskProc;
+HP_Fn_SocketTaskProc = Fn_SocketTaskProc
+
+
+# ***********************************************************************
+# 名称：获取 HPSocket 版本号
+# 描述：版本号（4 个字节分别为：主版本号，子版本号，修正版本号，构建编号）
+# ***********************************************************************
+
 # ***************************************************************************************************************************************************
 # *************************************************************** SSL Type Definitions **************************************************************
 # ***************************************************************************************************************************************************
-
 
 
 # ***********************************************************************
@@ -368,8 +460,9 @@ HP_Fn_SNI_ServerNameCallback = Fn_SNI_ServerNameCallback
 
 
 # ***************************************************************************************************************************************************
-# *************************************************************** HTTP Type Definitions *************************************************************
+# ************************************************************** HTTP Type Definitions **************************************************************
 # ***************************************************************************************************************************************************
+
 
 # ***********************************************************************
 # 名称：HTTP 版本
@@ -661,3 +754,4 @@ HP_LPCOOKIE = ctypes.POINTER(TNVPair)
 
 def GetHPSocketVersion():
     return (HP_VERSION_MAJOR << 24) | (HP_VERSION_MINOR << 16) | (HP_VERSION_REVISE << 8) | HP_VERSION_BUILD
+

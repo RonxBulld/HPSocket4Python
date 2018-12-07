@@ -3665,6 +3665,18 @@ if hasattr(HPSocketDLL, "HP_HttpServer_Release"):
     HP_HttpServer_Release.restype = ctypes.c_bool
     HP_HttpServer_Release.argtypes = [HP_HttpServer, HP_CONNID]
 
+#
+# * 名称：启动 HTTP 通信
+# * 描述：当通信组件设置为非自动启动 HTTP 通信时，需要调用本方法启动 HTTP 通信
+# *
+# * 返回值：	TRUE	-- 成功
+# *			FALSE	-- 失败，可通过 SYS_GetLastError() 获取失败原因
+#
+# HPSOCKET_API BOOL __HP_CALL HP_HttpServer_StartHttp(HP_HttpServer pServer, HP_CONNID dwConnID);
+if hasattr(HPSocketDLL, "HP_HttpServer_StartHttp"):
+    HP_HttpServer_StartHttp = HPSocketDLL.HP_HttpServer_StartHttp
+    HP_HttpServer_StartHttp.restype = ctypes.c_bool
+    HP_HttpServer_StartHttp.argtypes = [HP_HttpServer, HP_CONNID]
 
 # ****************************************************************************
 # ************************** HTTP Server 属性访问方法 *************************
@@ -3843,6 +3855,21 @@ if hasattr(HPSocketDLL, "HP_HttpServer_GetWSMessageState"):
     HP_HttpServer_GetWSMessageState.argtypes = [HP_HttpServer, HP_CONNID, ctypes.POINTER(ctypes.c_bool), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(LPCBYTE), ctypes.POINTER(ctypes.c_ulonglong), ctypes.POINTER(ctypes.c_ulonglong)]
 
 
+#  设置 HTTP 启动方式（默认：TRUE，自动启动）
+# HPSOCKET_API void __HP_CALL HP_HttpServer_SetHttpAutoStart(HP_HttpServer pServer, BOOL bAutoStart);
+if hasattr(HPSocketDLL, "HP_HttpServer_SetHttpAutoStart"):
+    HP_HttpServer_SetHttpAutoStart = HPSocketDLL.HP_HttpServer_SetHttpAutoStart
+    HP_HttpServer_SetHttpAutoStart.restype = None
+    HP_HttpServer_SetHttpAutoStart.argtypes = [HP_HttpServer, ctypes.c_bool]
+
+#  获取 HTTP 启动方式
+# HPSOCKET_API BOOL __HP_CALL HP_HttpServer_IsHttpAutoStart(HP_HttpServer pServer);
+if hasattr(HPSocketDLL, "HP_HttpServer_IsHttpAutoStart"):
+    HP_HttpServer_IsHttpAutoStart = HPSocketDLL.HP_HttpServer_IsHttpAutoStart
+    HP_HttpServer_IsHttpAutoStart.restype = ctypes.c_bool
+    HP_HttpServer_IsHttpAutoStart.argtypes = [HP_HttpServer]
+
+
 # ************************************************************************
 # ************************** HTTP Agent 操作方法 **************************
 
@@ -3976,6 +4003,19 @@ if hasattr(HPSocketDLL, "HP_HttpAgent_SendWSMessage"):
     HP_HttpAgent_SendWSMessage.restype = ctypes.c_bool
     HP_HttpAgent_SendWSMessage.argtypes = [HP_HttpAgent, HP_CONNID, ctypes.c_bool, ctypes.c_byte, ctypes.c_byte, ctypes.c_int, ctypes.POINTER(ctypes.c_byte), ctypes.c_int, ctypes.c_ulonglong]
 
+
+#
+# * 名称：启动 HTTP 通信
+# * 描述：当通信组件设置为非自动启动 HTTP 通信时，需要调用本方法启动 HTTP 通信
+# *
+# * 返回值：	TRUE	-- 成功
+# *			FALSE	-- 失败，可通过 SYS_GetLastError() 获取失败原因
+#
+# HPSOCKET_API BOOL __HP_CALL HP_HttpAgent_StartHttp(HP_HttpAgent pAgent, HP_CONNID dwConnID);
+if hasattr(HPSocketDLL, "HP_HttpAgent_StartHttp"):
+    HP_HttpAgent_StartHttp = HPSocketDLL.HP_HttpAgent_StartHttp
+    HP_HttpAgent_StartHttp.restype = ctypes.c_bool
+    HP_HttpAgent_StartHttp.argtypes = [HP_HttpAgent, HP_CONNID]
 
 # ****************************************************************************
 # ************************** HTTP Agent 属性访问方法 **************************
@@ -4133,6 +4173,21 @@ if hasattr(HPSocketDLL, "HP_HttpAgent_GetWSMessageState"):
     HP_HttpAgent_GetWSMessageState.argtypes = [HP_HttpAgent, HP_CONNID, ctypes.POINTER(ctypes.c_bool), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(LPCBYTE), ctypes.POINTER(ctypes.c_ulonglong), ctypes.POINTER(ctypes.c_ulonglong)]
 
 
+#  设置 HTTP 启动方式（默认：TRUE，自动启动）
+# HPSOCKET_API void __HP_CALL HP_HttpAgent_SetHttpAutoStart(HP_HttpAgent pAgent, BOOL bAutoStart);
+if hasattr(HPSocketDLL, "HP_HttpAgent_SetHttpAutoStart"):
+    HP_HttpAgent_SetHttpAutoStart = HPSocketDLL.HP_HttpAgent_SetHttpAutoStart
+    HP_HttpAgent_SetHttpAutoStart.restype = None
+    HP_HttpAgent_SetHttpAutoStart.argtypes = [HP_HttpAgent, ctypes.c_bool]
+
+#  获取 HTTP 启动方式
+# HPSOCKET_API BOOL __HP_CALL HP_HttpAgent_IsHttpAutoStart(HP_HttpAgent pAgent);
+if hasattr(HPSocketDLL, "HP_HttpAgent_IsHttpAutoStart"):
+    HP_HttpAgent_IsHttpAutoStart = HPSocketDLL.HP_HttpAgent_IsHttpAutoStart
+    HP_HttpAgent_IsHttpAutoStart.restype = ctypes.c_bool
+    HP_HttpAgent_IsHttpAutoStart.argtypes = [HP_HttpAgent]
+
+
 # ************************************************************************
 # ************************** HTTP Client 操作方法 *************************
 
@@ -4263,6 +4318,20 @@ if hasattr(HPSocketDLL, "HP_HttpClient_SendWSMessage"):
     HP_HttpClient_SendWSMessage = HPSocketDLL.HP_HttpClient_SendWSMessage
     HP_HttpClient_SendWSMessage.restype = ctypes.c_bool
     HP_HttpClient_SendWSMessage.argtypes = [HP_HttpClient, ctypes.c_bool, ctypes.c_byte, ctypes.c_byte, ctypes.c_int, ctypes.POINTER(ctypes.c_byte), ctypes.c_int, ctypes.c_ulonglong]
+
+
+#
+# * 名称：启动 HTTP 通信
+# * 描述：当通信组件设置为非自动启动 HTTP 通信时，需要调用本方法启动 HTTP 通信
+# *
+# * 返回值：	TRUE	-- 成功
+# *			FALSE	-- 失败，可通过 SYS_GetLastError() 获取失败原因
+#
+# HPSOCKET_API BOOL __HP_CALL HP_HttpClient_StartHttp(HP_HttpClient pClient);
+if hasattr(HPSocketDLL, "HP_HttpClient_StartHttp"):
+    HP_HttpClient_StartHttp = HPSocketDLL.HP_HttpClient_StartHttp
+    HP_HttpClient_StartHttp.restype = ctypes.c_bool
+    HP_HttpClient_StartHttp.argtypes = [HP_HttpClient]
 
 
 # ****************************************************************************
@@ -4419,6 +4488,21 @@ if hasattr(HPSocketDLL, "HP_HttpClient_GetWSMessageState"):
     HP_HttpClient_GetWSMessageState = HPSocketDLL.HP_HttpClient_GetWSMessageState
     HP_HttpClient_GetWSMessageState.restype = ctypes.c_bool
     HP_HttpClient_GetWSMessageState.argtypes = [HP_HttpClient, ctypes.POINTER(ctypes.c_bool), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(ctypes.c_byte), ctypes.POINTER(LPCBYTE), ctypes.POINTER(ctypes.c_ulonglong), ctypes.POINTER(ctypes.c_ulonglong)]
+
+
+#  设置 HTTP 启动方式（默认：TRUE，自动启动）
+# HPSOCKET_API void __HP_CALL HP_HttpClient_SetHttpAutoStart(HP_HttpClient pClient, BOOL bAutoStart);
+if hasattr(HPSocketDLL, "HP_HttpClient_SetHttpAutoStart"):
+    HP_HttpClient_SetHttpAutoStart = HPSocketDLL.HP_HttpClient_SetHttpAutoStart
+    HP_HttpClient_SetHttpAutoStart.restype = None
+    HP_HttpClient_SetHttpAutoStart.argtypes = [HP_HttpClient, ctypes.c_bool]
+
+#  获取 HTTP 启动方式
+# HPSOCKET_API BOOL __HP_CALL HP_HttpClient_IsHttpAutoStart(HP_HttpClient pClient);
+if hasattr(HPSocketDLL, "HP_HttpClient_IsHttpAutoStart"):
+    HP_HttpClient_IsHttpAutoStart = HPSocketDLL.HP_HttpClient_IsHttpAutoStart
+    HP_HttpClient_IsHttpAutoStart.restype = ctypes.c_bool
+    HP_HttpClient_IsHttpAutoStart.argtypes = [HP_HttpClient]
 
 
 # ************************************************************************
